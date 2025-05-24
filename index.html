@@ -75,6 +75,17 @@
     <h1>Adventure & Battle</h1>
     <div id="enemy-image" style="margin: 10px auto; text-align: center;"></div>
     <button onclick="startBattle()">Explore</button>
+        <div id="battle-hp-display">
+      <h4>🧍 Your HP</h4>
+      <div class="hp-bar">
+        <div id="player-hp-bar" class="hp-fill"></div>
+      </div>
+    
+      <h4>👹 Enemy HP</h4>
+      <div class="hp-bar">
+        <div id="enemy-hp-bar" class="hp-fill"></div>
+      </div>
+    </div>
     <div id="battle-actions" style="margin-top: 10px;">
       <button onclick="healInBattle()">🧪 Heal</button>
       <button onclick="runFromBattle()">🏃‍♂️ Run Away</button>
