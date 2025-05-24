@@ -1,6 +1,6 @@
 let player = {
   name: "",
-  age: 21,
+  age: 13,
   talent: 0,
   physique: "Unknown",
   physiqueRarity: "",
@@ -23,37 +23,26 @@ let resources = {
   lifeEssence: 0
 };
 
-// -- Physique Pool with Rarity & Stats --
+// --- Physique Pool ---
 const physiquePool = [
-  // GRAY - 60%
   { name: "Ordinary Vessel", rarity: "Gray", weight: 30, stats: { health: 0.9, strength: 0.9, qi: 0.9, speed: 0.9 } },
   { name: "Frail Heart", rarity: "Gray", weight: 30, stats: { health: 0.8, strength: 0.8, qi: 1.0, speed: 1.0 } },
-
-  // GREEN - 40%
   { name: "Stable Core", rarity: "Green", weight: 10, stats: { health: 1.0, strength: 1.0, qi: 1.0, speed: 1.0 } },
   { name: "Quick Meridian", rarity: "Green", weight: 10, stats: { health: 0.9, strength: 0.9, qi: 1.1, speed: 1.2 } },
   { name: "Iron Muscle", rarity: "Green", weight: 10, stats: { health: 1.2, strength: 1.2, qi: 0.9, speed: 0.9 } },
   { name: "Flowing River", rarity: "Green", weight: 5, stats: { health: 1.0, strength: 1.0, qi: 1.2, speed: 1.1 } },
   { name: "Earthroot Body", rarity: "Green", weight: 5, stats: { health: 1.3, strength: 1.1, qi: 0.8, speed: 0.8 } },
-
-  // BLUE - 20%
   { name: "Thunder Vessel", rarity: "Blue", weight: 7, stats: { health: 1.0, strength: 1.3, qi: 1.2, speed: 1.1 } },
   { name: "Frost Jade", rarity: "Blue", weight: 7, stats: { health: 1.1, strength: 0.9, qi: 1.4, speed: 1.0 } },
   { name: "Crimson Flame", rarity: "Blue", weight: 6, stats: { health: 1.2, strength: 1.2, qi: 1.1, speed: 1.1 } },
-
-  // PURPLE - 5%
   { name: "Celestial Spirit", rarity: "Purple", weight: 2, stats: { health: 1.3, strength: 1.4, qi: 1.5, speed: 1.2 } },
   { name: "Voidwalker", rarity: "Purple", weight: 2, stats: { health: 1.1, strength: 1.1, qi: 1.6, speed: 1.5 } },
   { name: "Starlit Vessel", rarity: "Purple", weight: 1, stats: { health: 1.4, strength: 1.3, qi: 1.3, speed: 1.3 } },
-
-  // GOLD - 1%
   { name: "Heavenly Dao Body", rarity: "Gold", weight: 0.5, stats: { health: 1.6, strength: 1.6, qi: 1.7, speed: 1.6 } },
   { name: "Primordial Chaos Vessel", rarity: "Gold", weight: 0.5, stats: { health: 1.7, strength: 1.7, qi: 1.9, speed: 1.7 } }
 ];
 
-let ageTimer = null;
-let cultivationInterval = null;
-
+// --- Physique Picker ---
 function pickPhysique() {
   const totalWeight = physiquePool.reduce((sum, p) => sum + p.weight, 0);
   let roll = Math.random() * totalWeight;
@@ -64,6 +53,7 @@ function pickPhysique() {
   return physiquePool[0];
 }
 
+// --- NAME INPUT FLOW ---
 function submitName() {
   const name = document.getElementById("player-name-input").value.trim();
   if (!name) return;
@@ -80,6 +70,7 @@ function submitName() {
   button.onclick = rollStats;
 }
 
+// --- ROLL TALENT + PHYSIQUE ---
 function rollStats() {
   const modal = document.getElementById("modal");
   const modalText = document.getElementById("modal-text");
@@ -128,7 +119,7 @@ function setInitialStats() {
 function startAgeTimer() {
   ageTimer = setInterval(() => {
     player.age++;
-    document.getElementById("age").innerText = `${player.age}`;
+    updateUI();
   }, 30000);
 }
 
@@ -160,16 +151,15 @@ function breakthrough() {
 
   player.xp = 0;
   player.maxXP *= 1.4;
-
   const newRealm = getNewRealm();
+
   if (newRealm) {
     player.realm = newRealm;
     player.realmStage++;
     player.lifespan += 5;
     increaseStatsOnBreakthrough();
-
     document.getElementById("realm").innerText = player.realm;
-    showModal(`Breakthrough successful! You reached <strong>${player.realm}</strong> and grew stronger!`);
+    showModal(`Breakthrough successful! You've reached <strong>${player.realm}</strong>!`);
   } else {
     showModal("You have reached the peak realm.");
   }
@@ -182,28 +172,23 @@ function increaseStatsOnBreakthrough() {
   const boost = player.physiqueBoost;
   const growthFactor = 0.6 + player.talent / 20;
 
-  player.stats.health = Math.floor(player.stats.health + 10 * growthFactor * boost.health);
-  player.stats.strength = Math.floor(player.stats.strength + 8 * growthFactor * boost.strength);
-  player.stats.qi = Math.floor(player.stats.qi + 9 * growthFactor * boost.qi);
-  player.stats.speed = Math.floor(player.stats.speed + 7 * growthFactor * boost.speed);
+  player.stats.health += Math.floor(10 * growthFactor * boost.health);
+  player.stats.strength += Math.floor(8 * growthFactor * boost.strength);
+  player.stats.qi += Math.floor(9 * growthFactor * boost.qi);
+  player.stats.speed += Math.floor(7 * growthFactor * boost.speed);
 }
 
 function getNewRealm() {
   const realms = [
-    "Mortal I", "Mortal II", "Mortal III", "Qi Gathering I",
-    "Qi Gathering II", "Foundation Establishment", "Core Formation",
-    "Nascent Soul", "Soul Transformation", "Immortal Ascension"
+    "Mortal I", "Mortal II", "Mortal III", "Qi Gathering I", "Qi Gathering II",
+    "Foundation Establishment", "Core Formation", "Nascent Soul", "Soul Transformation",
+    "Immortal Ascension"
   ];
-
-  if (player.realmStage < realms.length - 1) {
-    return realms[player.realmStage + 1];
-  } else {
-    return null;
-  }
+  return realms[player.realmStage + 1] || null;
 }
 
 function selectRegion(regionName) {
-  showModal(`You entered the region: ${regionName}`);
+  showModal(`You entered: ${regionName}`);
   document.querySelector(".world-map").style.filter = "brightness(1.1)";
 }
 
@@ -236,9 +221,6 @@ function updateUI() {
   document.getElementById("spirit-stones").innerText = Math.floor(resources.spiritStones);
   document.getElementById("immortal-stones").innerText = Math.floor(resources.immortalStones);
   document.getElementById("life-essence").innerText = Math.floor(resources.lifeEssence);
-
-  const lifespanDisplay = document.querySelector(".panel.left p:nth-of-type(6)");
-  if (lifespanDisplay) lifespanDisplay.innerText = `Expected Lifespan: ${player.lifespan} years`;
 }
 
 window.onload = () => {
