@@ -12,7 +12,11 @@
 <div id="modal" class="modal hidden">
   <div class="modal-content">
     <p id="modal-text">What's your name, cultivator?</p>
-    <input type="text" id="player-name-input" placeholder="Enter your name" />
+    <input type="text" id="player-firstname-input" placeholder="Enter your first name" />
+    <select id="surname-dropdown" onchange="updateSurnameMeaning()">
+      <option value="" disabled selected>Select a surname</option>
+    </select>
+    <p id="surname-meaning" style="font-style: italic; margin: 5px 0;">Surname meaning will appear here</p>
     <button onclick="submitName()">Submit</button>
   </div>
 </div>
@@ -38,6 +42,13 @@
     </div>
 
     <p>Expected Lifespan: <span id="lifespan">85</span> years</p>
+
+    <div id="golden-core-panel" class="golden-core-panel hidden">
+      <h4>🌟 Golden Core Info</h4>
+      <p>Core Level: <span id="core-level">I</span></p>
+      <p>Qi Boost: <span id="qi-boost">+0%</span></p>
+      <p>Stat Boost: <span id="stat-boost">+0%</span></p>
+    </div>
 
     <button onclick="toggleCultivation()" id="cultivate-btn">Start Cultivating</button>
     <button onclick="breakthrough()">Breakthrough</button>
