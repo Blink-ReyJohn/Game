@@ -3,6 +3,8 @@ let player = {
   age: 21,
   talent: 0,
   physique: "Unknown",
+  physiqueRarity: "",
+  physiqueBoost: {},
   stats: { health: 0, strength: 0, qi: 0, speed: 0 },
   xp: 0,
   maxXP: 12.5,
@@ -21,18 +23,47 @@ let resources = {
   lifeEssence: 0
 };
 
-const physiqueTypes = ["Fragile", "Normal", "Refined", "Heavenly Body"];
-const physiqueBoosts = {
-  Fragile: 0.8,
-  Normal: 1,
-  Refined: 1.2,
-  "Heavenly Body": 1.5
-};
+// -- Physique Pool with Rarity & Stats --
+const physiquePool = [
+  // GRAY - 60%
+  { name: "Ordinary Vessel", rarity: "Gray", weight: 30, stats: { health: 0.9, strength: 0.9, qi: 0.9, speed: 0.9 } },
+  { name: "Frail Heart", rarity: "Gray", weight: 30, stats: { health: 0.8, strength: 0.8, qi: 1.0, speed: 1.0 } },
+
+  // GREEN - 40%
+  { name: "Stable Core", rarity: "Green", weight: 10, stats: { health: 1.0, strength: 1.0, qi: 1.0, speed: 1.0 } },
+  { name: "Quick Meridian", rarity: "Green", weight: 10, stats: { health: 0.9, strength: 0.9, qi: 1.1, speed: 1.2 } },
+  { name: "Iron Muscle", rarity: "Green", weight: 10, stats: { health: 1.2, strength: 1.2, qi: 0.9, speed: 0.9 } },
+  { name: "Flowing River", rarity: "Green", weight: 5, stats: { health: 1.0, strength: 1.0, qi: 1.2, speed: 1.1 } },
+  { name: "Earthroot Body", rarity: "Green", weight: 5, stats: { health: 1.3, strength: 1.1, qi: 0.8, speed: 0.8 } },
+
+  // BLUE - 20%
+  { name: "Thunder Vessel", rarity: "Blue", weight: 7, stats: { health: 1.0, strength: 1.3, qi: 1.2, speed: 1.1 } },
+  { name: "Frost Jade", rarity: "Blue", weight: 7, stats: { health: 1.1, strength: 0.9, qi: 1.4, speed: 1.0 } },
+  { name: "Crimson Flame", rarity: "Blue", weight: 6, stats: { health: 1.2, strength: 1.2, qi: 1.1, speed: 1.1 } },
+
+  // PURPLE - 5%
+  { name: "Celestial Spirit", rarity: "Purple", weight: 2, stats: { health: 1.3, strength: 1.4, qi: 1.5, speed: 1.2 } },
+  { name: "Voidwalker", rarity: "Purple", weight: 2, stats: { health: 1.1, strength: 1.1, qi: 1.6, speed: 1.5 } },
+  { name: "Starlit Vessel", rarity: "Purple", weight: 1, stats: { health: 1.4, strength: 1.3, qi: 1.3, speed: 1.3 } },
+
+  // GOLD - 1%
+  { name: "Heavenly Dao Body", rarity: "Gold", weight: 0.5, stats: { health: 1.6, strength: 1.6, qi: 1.7, speed: 1.6 } },
+  { name: "Primordial Chaos Vessel", rarity: "Gold", weight: 0.5, stats: { health: 1.7, strength: 1.7, qi: 1.9, speed: 1.7 } }
+];
 
 let ageTimer = null;
 let cultivationInterval = null;
 
-// -- NAME INPUT --
+function pickPhysique() {
+  const totalWeight = physiquePool.reduce((sum, p) => sum + p.weight, 0);
+  let roll = Math.random() * totalWeight;
+  for (const p of physiquePool) {
+    if (roll < p.weight) return p;
+    roll -= p.weight;
+  }
+  return physiquePool[0];
+}
+
 function submitName() {
   const name = document.getElementById("player-name-input").value.trim();
   if (!name) return;
@@ -49,7 +80,6 @@ function submitName() {
   button.onclick = rollStats;
 }
 
-// -- ROLL TALENT & PHYSIQUE WITH ANIMATION --
 function rollStats() {
   const modal = document.getElementById("modal");
   const modalText = document.getElementById("modal-text");
@@ -59,26 +89,21 @@ function rollStats() {
   let rollCount = 0;
   const interval = setInterval(() => {
     const tempTalent = Math.floor(Math.random() * 10) + 1;
-    const tempPhysique = physiqueTypes[Math.floor(Math.random() * physiqueTypes.length)];
-    modalText.innerHTML = `<strong>Rolling...</strong><br>Talent: ${tempTalent} | Physique: ${tempPhysique}`;
+    const tempPhysique = physiquePool[Math.floor(Math.random() * physiquePool.length)];
+    modalText.innerHTML = `<strong>Rolling...</strong><br>Talent: ${tempTalent} | Physique: ${tempPhysique.name} (${tempPhysique.rarity})`;
     rollCount++;
     if (rollCount >= 20) {
       clearInterval(interval);
 
       player.talent = Math.floor(Math.random() * 10) + 1;
-      const roll = Math.random();
-      if (roll < 0.2) player.physique = "Fragile";
-      else if (roll < 0.6) player.physique = "Normal";
-      else if (roll < 0.9) player.physique = "Refined";
-      else player.physique = "Heavenly Body";
+      const chosenPhysique = pickPhysique();
+      player.physique = chosenPhysique.name;
+      player.physiqueRarity = chosenPhysique.rarity;
+      player.physiqueBoost = chosenPhysique.stats;
 
-      const boost = physiqueBoosts[player.physique];
-      player.stats.health = Math.floor(100 + player.talent * 2 * boost);
-      player.stats.strength = Math.floor(90 + player.talent * 1.5 * boost);
-      player.stats.qi = Math.floor(90 + player.talent * 2 * boost);
-      player.stats.speed = Math.floor(90 + player.talent * 1.5 * boost);
+      setInitialStats();
 
-      modalText.innerHTML = `<strong>Fate Decided!</strong><br>Talent: ${player.talent} | Physique: ${player.physique}`;
+      modalText.innerHTML = `<strong>Fate Decided!</strong><br>Talent: ${player.talent} | Physique: ${player.physique} (${player.physiqueRarity})`;
       button.innerText = "Begin Journey";
       button.style.display = "inline-block";
       button.onclick = () => {
@@ -90,7 +115,16 @@ function rollStats() {
   }, 100);
 }
 
-// -- AGE TIMER --
+function setInitialStats() {
+  const boost = player.physiqueBoost;
+  const baseTalentFactor = 1 + player.talent / 10;
+
+  player.stats.health = Math.floor(80 * baseTalentFactor * boost.health);
+  player.stats.strength = Math.floor(70 * baseTalentFactor * boost.strength);
+  player.stats.qi = Math.floor(75 * baseTalentFactor * boost.qi);
+  player.stats.speed = Math.floor(70 * baseTalentFactor * boost.speed);
+}
+
 function startAgeTimer() {
   ageTimer = setInterval(() => {
     player.age++;
@@ -98,7 +132,6 @@ function startAgeTimer() {
   }, 30000);
 }
 
-// -- CULTIVATION LOGIC --
 function toggleCultivation() {
   player.cultivating = !player.cultivating;
   document.getElementById("cultivate-btn").innerText = player.cultivating ? "Stop Cultivating" : "Start Cultivating";
@@ -119,7 +152,6 @@ function toggleCultivation() {
   }
 }
 
-// -- BREAKTHROUGH LOGIC --
 function breakthrough() {
   if (player.xp < player.maxXP) {
     showModal("Not enough experience to breakthrough.");
@@ -134,14 +166,26 @@ function breakthrough() {
     player.realm = newRealm;
     player.realmStage++;
     player.lifespan += 5;
+    increaseStatsOnBreakthrough();
+
     document.getElementById("realm").innerText = player.realm;
-    showModal(`Breakthrough successful! You've reached <strong>${player.realm}</strong> and extended your lifespan.`);
+    showModal(`Breakthrough successful! You reached <strong>${player.realm}</strong> and grew stronger!`);
   } else {
     showModal("You have reached the peak realm.");
   }
 
   resources.spiritStones += 10;
   updateUI();
+}
+
+function increaseStatsOnBreakthrough() {
+  const boost = player.physiqueBoost;
+  const growthFactor = 0.6 + player.talent / 20;
+
+  player.stats.health = Math.floor(player.stats.health + 10 * growthFactor * boost.health);
+  player.stats.strength = Math.floor(player.stats.strength + 8 * growthFactor * boost.strength);
+  player.stats.qi = Math.floor(player.stats.qi + 9 * growthFactor * boost.qi);
+  player.stats.speed = Math.floor(player.stats.speed + 7 * growthFactor * boost.speed);
 }
 
 function getNewRealm() {
@@ -158,13 +202,11 @@ function getNewRealm() {
   }
 }
 
-// -- REGION SELECTION --
 function selectRegion(regionName) {
   showModal(`You entered the region: ${regionName}`);
   document.querySelector(".world-map").style.filter = "brightness(1.1)";
 }
 
-// -- MODAL HELPERS --
 function showModal(message) {
   const modal = document.getElementById("modal");
   modal.classList.remove("hidden");
@@ -175,12 +217,11 @@ function closeModal() {
   document.getElementById("modal").classList.add("hidden");
 }
 
-// -- UI UPDATER --
 function updateUI() {
   document.getElementById("player-name").innerText = player.name;
   document.getElementById("age").innerText = `${player.age}`;
   document.getElementById("talent").innerText = player.talent;
-  document.getElementById("physique").innerText = player.physique;
+  document.getElementById("physique").innerText = `${player.physique} (${player.physiqueRarity})`;
 
   document.getElementById("health").innerText = player.stats.health;
   document.getElementById("strength").innerText = player.stats.strength;
@@ -200,7 +241,6 @@ function updateUI() {
   if (lifespanDisplay) lifespanDisplay.innerText = `Expected Lifespan: ${player.lifespan} years`;
 }
 
-// -- INIT --
 window.onload = () => {
   document.getElementById("modal").classList.remove("hidden");
 };
