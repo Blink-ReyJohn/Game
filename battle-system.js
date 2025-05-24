@@ -45,50 +45,61 @@ function startBattle() {
 
   const enemy = getRandomEnemyFromList();
   appendLog(`<strong>⚔️ ${enemy.name} (${enemy.rarity}) appears!</strong>`);
-
   const imageBox = document.getElementById("enemy-image");
   imageBox.innerHTML = `<img src='assets/enemies/${slug(enemy.name)}.png' alt='${enemy.name}' class='enemy-pic'/>`;
 
   let playerHP = player.stats.health;
   let enemyHP = enemy.health;
 
+  updateHPBars(playerHP, enemyHP, player.stats.health, enemy.health);
+
   const interval = setInterval(() => {
     if (Math.random() < player.stats.speed / 100) {
       enemyHP -= player.stats.strength;
       appendLog(`<span class='battle-hit'>You dealt ${player.stats.strength} damage!</span>`);
+      showFloatingText(`-${player.stats.strength}`, true);
     }
 
     if (enemyHP <= 0) {
       clearInterval(interval);
       appendLog(`<strong class='battle-drop'>🎉 You defeated the ${enemy.name}!</strong>`);
-
       const mod = rarityModifiers[enemy.rarity];
       const gold = Math.floor(Math.random() * 20 * mod.xp);
       const stones = Math.floor(Math.random() * 5 * mod.xp);
       player.gold += gold;
       player.spiritStones += stones;
       appendLog(`💰 Gained ${gold} gold and ${stones} spirit stones.`);
-      
+
       if (Math.random() < mod.dropChance) {
         const loot = inventoryItems[Math.floor(Math.random() * inventoryItems.length)];
         player.inventory.push(loot);
         appendLog(`📦 Looted: <em>${loot.name}</em>`);
       }
-      
+
+      updateHPBars(0, 0, player.stats.health, enemy.health);
       updateUI();
       savePlayerData();
+      return;
     }
 
     if (Math.random() < enemy.speed / 100) {
       playerHP -= enemy.strength;
-      appendLog(`<span class='battle-hit'>${enemy.name} hits you for ${enemy.strength} damage!</span>`);
+      appendLog(`<span class='battle-hit'>${enemy.name} hits you for ${enemy.strength}!</span>`);
+      showFloatingText(`-${enemy.strength}`, false);
     }
 
     if (playerHP <= 0) {
       clearInterval(interval);
       appendLog(`<span class='battle-hit'>💀 You were defeated by the ${enemy.name}...</span>`);
     }
+
+    updateHPBars(playerHP, enemyHP, player.stats.health, enemy.health);
   }, 1000);
+}
+
+function updateHPBars(pHP, eHP, pMax, eMax) {
+  document.getElementById("player-hp-bar").style.width = `${(pHP / pMax) * 100}%`;
+  document.getElementById("enemy-hp-bar").style.width = `${(eHP / eMax) * 100}%`;
 }
 
 function getRandomEnemyFromList() {
@@ -114,4 +125,14 @@ function appendLog(html) {
   line.innerHTML = html;
   log.appendChild(line);
   log.scrollTop = log.scrollHeight;
+}
+
+function showFloatingText(text, isEnemy = true) {
+  const el = document.createElement("div");
+  el.textContent = text;
+  el.className = "floating-damage";
+  el.style.left = isEnemy ? "60%" : "20%";
+  el.style.top = "120px";
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
 }
