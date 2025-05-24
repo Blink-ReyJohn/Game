@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cultivation RPG</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="game-container">
+    <!-- LEFT PANEL -->
+    <div class="panel left">
+      <h2>HansolChwe</h2>
+      <p><strong>Sectless</strong> - Wandering Cultivator</p>
+      <p>Talent: <span id="talent">7</span></p>
+      <div class="progress-bar">
+        <div class="progress" id="xp-bar" style="width: 0%"></div>
+      </div>
+      <img src="https://via.placeholder.com/150" alt="Character"/>
+      <h3>Mortal I <span>+0</span></h3>
+      <button onclick="reinforce()">Reinforce</button>
+      <div class="stats">
+        <p>Health: <span id="health">103</span></p>
+        <p>Strength: <span id="strength">95</span></p>
+        <p>Qi: <span id="qi">98</span></p>
+        <p>Speed: <span id="speed">105</span></p>
+      </div>
+      <p>Age: <span id="age">21</span> years old</p>
+      <p>Expected Lifespan: 85 years</p>
+      <p>Chance of Success: <span id="success">99.8%</span></p>
+      <button onclick="startCultivating()">Start Cultivating</button>
+      <button onclick="breakthrough()">Breakthrough</button>
+    </div>
+
+    <!-- CENTER MAP -->
+    <div class="map">
+      <h1>World Map</h1>
+      <img src="https://i.imgur.com/yFgXn8E.jpeg" alt="World Map" class="world-map">
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel right">
+      <p>Gold: <span id="gold">0</span></p>
+      <p>Knowledge: <span id="knowledge">0</span></p>
+      <p>Contribution: <span id="contribution">0</span></p>
+      <p>Spirit Stones: <span id="spirit-stones">0</span></p>
+      <p>Immortal Stones: <span id="immortal-stones">0</span></p>
+      <p>Life Essence: <span id="life-essence">0</span></p>
+      <button class="green">Leaderboard</button>
+      <button class="blue">Reincarnation Shop</button>
+      <button class="red">Reroll Life</button>
+      <button class="yellow">Gamepasses</button>
+      <button class="purple">Backgrounds</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
