@@ -1,183 +1,130 @@
-let xp = 0;
-let maxXP = 12.5;
-let stage = 1;
-let realm = "Mortal I";
-let reinforceLevel = 0;
-let age = 21;
-let lifespan = 85;
-let talent = 7;
-let region = "None";
-
-let stats = {
-  health: 103,
-  strength: 95,
-  qi: 98,
-  speed: 105,
+let player = {
+  name: "",
+  age: 21,
+  talent: 0,
+  physique: "Unknown",
+  stats: { health: 0, strength: 0, qi: 0, speed: 0 },
+  xp: 0,
+  maxXP: 12.5,
+  region: "None",
+  cultivating: false
 };
 
 let resources = {
-  gold: 0,
-  knowledge: 0,
-  contribution: 0,
   spiritStones: 0,
-  immortalStones: 0,
-  lifeEssence: 0,
+  knowledge: 0
 };
 
-// --- REGION MODIFIERS ---
-const regionEffects = {
-  "Volcanic Peak": { qi: 5 },
-  "Forest of Great Beasts": { speed: 5 },
-  "Clashing Elements": { strength: 5 },
-  "Island of Heavenly Trials": { health: 10 },
-  "City": { knowledge: 3 },
-  "Land of Immortals": { all: 2 },
+const physiqueTypes = ["Fragile", "Normal", "Refined", "Heavenly Body"];
+const physiqueBoosts = {
+  Fragile: 0.8,
+  Normal: 1,
+  Refined: 1.2,
+  "Heavenly Body": 1.5
 };
 
-// --- LOAD SAVE ---
-function loadGame() {
-  const save = localStorage.getItem("cultivationSave");
-  if (save) {
-    Object.assign(this, JSON.parse(save));
-  }
-  applyRegionEffects();
+let ageTimer = null;
+let cultivationInterval = null;
+
+function submitName() {
+  const name = document.getElementById("player-name-input").value.trim();
+  if (!name) return;
+  player.name = name;
+  document.getElementById("modal-text").innerText = "Rolling Talent and Physique...";
+  document.getElementById("player-name-input").remove();
+  document.querySelector("#modal .modal-content button").innerText = "Roll";
+
+  document.querySelector("#modal .modal-content button").onclick = rollStats;
+}
+
+function rollStats() {
+  player.talent = Math.floor(Math.random() * 10) + 1;
+
+  const roll = Math.random();
+  if (roll < 0.2) player.physique = "Fragile";
+  else if (roll < 0.6) player.physique = "Normal";
+  else if (roll < 0.9) player.physique = "Refined";
+  else player.physique = "Heavenly Body";
+
+  const boost = physiqueBoosts[player.physique];
+  player.stats.health = Math.floor(100 + player.talent * 2 * boost);
+  player.stats.strength = Math.floor(90 + player.talent * 1.5 * boost);
+  player.stats.qi = Math.floor(90 + player.talent * 2 * boost);
+  player.stats.speed = Math.floor(90 + player.talent * 1.5 * boost);
+
+  document.getElementById("modal").classList.add("hidden");
+  document.getElementById("game-container").classList.remove("hidden");
+
+  startAgeTimer();
   updateUI();
 }
 
-// --- SAVE GAME ---
-function saveGame() {
-  const saveData = {
-    xp, maxXP, stage, realm, reinforceLevel, age, lifespan, talent, stats, resources, region
-  };
-  localStorage.setItem("cultivationSave", JSON.stringify(saveData));
+function startAgeTimer() {
+  ageTimer = setInterval(() => {
+    player.age++;
+    document.getElementById("player-age").innerText = `Age: ${player.age}`;
+  }, 30000); // 30s per year
 }
 
-function applyRegionEffects() {
-  if (!region || !regionEffects[region]) return;
-  const boost = regionEffects[region];
-  if (boost.all) {
-    stats.health += boost.all;
-    stats.qi += boost.all;
-    stats.strength += boost.all;
-    stats.speed += boost.all;
+function toggleCultivation() {
+  player.cultivating = !player.cultivating;
+  document.getElementById("cultivate-btn").innerText = player.cultivating ? "Stop Cultivating" : "Start Cultivating";
+
+  if (player.cultivating) {
+    cultivationInterval = setInterval(() => {
+      player.xp += 1 + player.talent / 10;
+      resources.spiritStones += 1;
+      resources.knowledge += 0.5;
+      updateUI();
+    }, 3000); // cultivate every 3 seconds
   } else {
-    for (let stat in boost) {
-      stats[stat] += boost[stat];
-    }
+    clearInterval(cultivationInterval);
   }
-}
-
-function selectRegion(regionName) {
-  region = regionName;
-  logEvent(`Entered region: ${regionName}`);
-  applyRegionEffects();
-  document.querySelector(".world-map").style.filter = regionBackground(regionName);
-  updateUI();
-  saveGame();
-}
-
-function regionBackground(name) {
-  switch (name) {
-    case "Volcanic Peak": return "hue-rotate(30deg)";
-    case "Forest of Great Beasts": return "brightness(0.9) saturate(1.2)";
-    case "Island of Heavenly Trials": return "contrast(1.1)";
-    case "Land of Immortals": return "grayscale(0.3)";
-    default: return "none";
-  }
-}
-
-function startCultivating() {
-  if (age >= lifespan) {
-    alert("You have died. Reincarnate to try again.");
-    return;
-  }
-
-  const xpGain = 1.5 + (talent / 10);
-  xp += xpGain;
-  age++;
-  resources.spiritStones += 2;
-  resources.knowledge += 1;
-  logEvent(`Cultivated and gained ${xpGain.toFixed(1)} XP.`);
-  if (xp >= maxXP) logEvent("Ready to breakthrough!");
-
-  updateUI();
-  saveGame();
-}
-
-function reinforce() {
-  reinforceLevel++;
-  stats.health += 2;
-  stats.qi += 3;
-  stats.strength += 2;
-  stats.speed += 1;
-  logEvent(`Reinforced body to +${reinforceLevel}`);
-  updateUI();
-  saveGame();
 }
 
 function breakthrough() {
-  if (xp < maxXP) {
-    alert("Not enough XP.");
+  if (player.xp < player.maxXP) {
+    showModal("Not enough experience to breakthrough.");
     return;
   }
-
-  const chance = calculateSuccessChance();
-  const roll = Math.random() * 100;
-
-  if (roll <= chance) {
-    xp = 0;
-    stage++;
-    maxXP *= 1.4;
-    realm = getNewRealm(stage);
-    logEvent(`Breakthrough! You are now at ${realm}`);
-    resources.spiritStones += 10;
-  } else {
-    xp -= maxXP * 0.25;
-    logEvent("Breakthrough failed.");
-  }
-
+  player.xp = 0;
+  player.maxXP *= 1.4;
+  resources.spiritStones += 10;
+  showModal("Breakthrough successful!");
   updateUI();
-  saveGame();
 }
 
-function calculateSuccessChance() {
-  let base = 70 + talent * 3;
-  if (xp >= maxXP * 1.2) base += 5;
-  return Math.min(base, 99.9);
+function showModal(message) {
+  const modal = document.getElementById("modal");
+  modal.classList.remove("hidden");
+  modal.innerHTML = `<div class="modal-content"><p>${message}</p><button onclick="closeModal()">OK</button></div>`;
 }
 
-function getNewRealm(stage) {
-  const realms = [
-    "Mortal I", "Mortal II", "Mortal III",
-    "Qi Gathering I", "Qi Gathering II",
-    "Foundation Establishment", "Core Formation",
-    "Nascent Soul", "Soul Transformation",
-    "Immortal Ascension"
-  ];
-  return realms[stage - 1] || "Celestial Path";
+function closeModal() {
+  document.getElementById("modal").classList.add("hidden");
 }
 
-function logEvent(msg) {
-  console.log(`[LOG]: ${msg}`);
+function selectRegion(regionName) {
+  player.region = regionName;
+  document.querySelector(".world-map").style.filter = "brightness(1.1)";
+  showModal(`You entered the region: ${regionName}`);
 }
 
 function updateUI() {
-  document.getElementById("xp-bar").style.width = (xp / maxXP) * 100 + "%";
-  document.getElementById("age").innerText = age;
-  document.getElementById("success").innerText = calculateSuccessChance() + "%";
+  document.getElementById("player-name").innerText = player.name;
+  document.getElementById("player-age").innerText = `Age: ${player.age}`;
+  document.getElementById("talent").innerText = player.talent;
+  document.getElementById("physique").innerText = player.physique;
 
-  document.getElementById("health").innerText = stats.health;
-  document.getElementById("strength").innerText = stats.strength;
-  document.getElementById("qi").innerText = stats.qi;
-  document.getElementById("speed").innerText = stats.speed;
+  document.getElementById("health").innerText = player.stats.health;
+  document.getElementById("strength").innerText = player.stats.strength;
+  document.getElementById("qi").innerText = player.stats.qi;
+  document.getElementById("speed").innerText = player.stats.speed;
 
-  document.getElementById("gold").innerText = resources.gold;
-  document.getElementById("knowledge").innerText = resources.knowledge;
-  document.getElementById("contribution").innerText = resources.contribution;
-  document.getElementById("spirit-stones").innerText = resources.spiritStones;
-  document.getElementById("immortal-stones").innerText = resources.immortalStones;
-  document.getElementById("life-essence").innerText = resources.lifeEssence;
+  document.getElementById("spirit-stones").innerText = Math.floor(resources.spiritStones);
+  document.getElementById("knowledge").innerText = Math.floor(resources.knowledge);
 }
 
-// --- INITIALIZE GAME ---
-window.onload = loadGame;
+window.onload = () => {
+  document.getElementById("modal").classList.remove("hidden");
+};
