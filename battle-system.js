@@ -65,14 +65,18 @@ function startBattle() {
       const mod = rarityModifiers[enemy.rarity];
       const gold = Math.floor(Math.random() * 20 * mod.xp);
       const stones = Math.floor(Math.random() * 5 * mod.xp);
+      player.gold += gold;
+      player.spiritStones += stones;
       appendLog(`💰 Gained ${gold} gold and ${stones} spirit stones.`);
-
+      
       if (Math.random() < mod.dropChance) {
         const loot = inventoryItems[Math.floor(Math.random() * inventoryItems.length)];
+        player.inventory.push(loot);
         appendLog(`📦 Looted: <em>${loot.name}</em>`);
-        // You can push this to player.inventory = [] if using one
       }
-      return;
+      
+      updateUI();
+      savePlayerData();
     }
 
     if (Math.random() < enemy.speed / 100) {
