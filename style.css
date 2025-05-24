@@ -1,20 +1,30 @@
+/* GENERAL RESET & BASE */
 body {
-  font-family: 'Segoe UI', sans-serif;
   margin: 0;
-  background: #111;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #111;
   color: white;
+  overflow: hidden;
 }
 
+h1, h2, h3 {
+  margin-top: 0;
+}
+
+/* GAME CONTAINER */
 .game-container {
   display: flex;
   height: 100vh;
+  overflow: hidden;
 }
 
+/* PANEL COMMON STYLES */
 .panel {
-  padding: 20px;
-  background-color: #222;
   width: 25%;
+  background-color: #222;
+  padding: 20px;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .panel.left {
@@ -25,36 +35,34 @@ body {
   border-left: 2px solid #333;
 }
 
-.map {
-  flex: 1;
-  text-align: center;
-  padding: 20px;
-}
-
-.world-map {
-  width: 100%;
-  border: 3px solid #555;
+.stats p, .panel p {
+  margin: 8px 0;
 }
 
 button {
-  margin-top: 10px;
-  padding: 10px;
   width: 100%;
+  padding: 10px;
+  margin-top: 10px;
   font-weight: bold;
   cursor: pointer;
+  border: none;
+  color: white;
+  transition: background 0.3s;
 }
 
-.green { background: #3f3; }
-.blue { background: #6cf; }
-.red { background: #f66; }
-.yellow { background: #fc3; }
-.purple { background: #c6f; }
+/* BUTTON COLORS */
+.green { background-color: #3f3; }
+.blue { background-color: #06f; }
+.red { background-color: #d33; }
+.yellow { background-color: #fc3; color: black; }
+.purple { background-color: #93f; }
 
+/* PROGRESS BAR */
 .progress-bar {
-  background: #333;
+  background-color: #333;
+  height: 20px;
   border-radius: 10px;
   overflow: hidden;
-  height: 20px;
   margin: 10px 0;
 }
 
@@ -62,15 +70,54 @@ button {
   height: 100%;
   background: #4caf50;
   width: 0%;
+  transition: width 0.3s ease;
+  text-align: center;
+  font-size: 12px;
+  color: black;
+}
+
+/* MAP PANEL */
+.map {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.world-map {
+  max-width: 100%;
+  height: auto;
+  max-height: 60vh;
+  object-fit: contain;
+  border: 3px solid #555;
+  margin-bottom: 10px;
+}
+
+/* REGION SELECT */
+.region-select {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
 }
 
 .region-select button {
-  margin: 5px;
-  padding: 8px;
+  padding: 8px 12px;
   font-size: 14px;
-  cursor: pointer;
+  background-color: #444;
+  color: white;
+  border: 1px solid #888;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
 
+.region-select button:hover {
+  background-color: #666;
+}
+
+/* MODAL */
 .modal {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -83,9 +130,29 @@ button {
 
 .modal-content {
   background: #222;
-  padding: 20px;
-  border-radius: 10px;
+  padding: 30px;
+  border-radius: 12px;
   text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.modal-content input {
+  padding: 10px;
+  width: 90%;
+  margin: 10px 0;
+  border: 1px solid #555;
+  background: #111;
+  color: white;
+}
+
+.modal-content button {
+  padding: 10px 20px;
+  margin-top: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
 .hidden {
