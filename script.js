@@ -80,10 +80,21 @@ function initializePlayer() {
   player.lifespan = BASE_LIFESPAN;
   player.statMultiplier = 1;
   calculateStats();
+  showInitModal();
   updateUI();
 }
 
-// ── Weighted Random Physique ──
+function showInitModal() {
+  document.getElementById("modal-name").textContent = player.name;
+  document.getElementById("modal-talent").textContent = player.talent;
+  document.getElementById("modal-physique").textContent = player.physique.name;
+  document.getElementById("init-modal").classList.remove("hidden");
+}
+
+document.getElementById("modal-confirm-btn").addEventListener("click", () => {
+  document.getElementById("init-modal").classList.add("hidden");
+});
+
 function getRandomPhysique() {
   const total = physiquePool.reduce((sum, p) => sum + p.weight, 0);
   let pick = Math.random() * total;
@@ -94,7 +105,6 @@ function getRandomPhysique() {
   return physiquePool[0];
 }
 
-// ── Stat Calculation ──
 function calculateStats() {
   const baseHealth = player.talent * player.physique.stats.health;
   const baseStrength = player.talent * player.physique.stats.strength;
@@ -106,7 +116,6 @@ function calculateStats() {
   player.stats.speed = Math.round(baseSpeed * player.statMultiplier);
 }
 
-// ── UI Update ──
 function updateUI() {
   document.getElementById("player-name").textContent = player.name;
   document.getElementById("age").textContent = player.age;
@@ -125,7 +134,6 @@ function updateUI() {
   document.getElementById("lifespan").textContent = player.lifespan;
 }
 
-// ── Cultivation Toggle ──
 function toggleCultivation() {
   const btn = document.getElementById("cultivate-btn");
   if (!player.cultivating) {
@@ -142,7 +150,6 @@ function toggleCultivation() {
   }
 }
 
-// ── Breakthrough Progression ──
 function breakthrough() {
   if (player.qi < player.qiRequired) {
     return alert(`Need ${player.qiRequired} Qi, but have ${player.qi}.`);
@@ -167,10 +174,8 @@ function breakthrough() {
   updateUI();
 }
 
-// ── Region Selection Stub ──
 function selectRegion(name) {
   alert(`You travel to ${name}. (Event logic goes here!)`);
 }
 
-// ── On Page Load ──
 window.onload = initializePlayer;
