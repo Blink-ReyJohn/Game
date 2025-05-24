@@ -135,7 +135,10 @@ button {
   text-align: center;
   max-width: 400px;
   width: 100%;
+  min-height: 150px; /* FIX: prevent jumpy size */
+  box-sizing: border-box;
 }
+
 
 .modal-content input {
   padding: 10px;
