@@ -88,14 +88,20 @@ function toggleCultivation() {
 
 function breakthrough() {
   if (player.qi < player.qiRequired) {
-    return alert(`Need ${player.qiRequired} Qi, but have ${player.qi}.`);
+    const modal = document.getElementById("notice-modal");
+    modal.querySelector(".modal-message").textContent = `Need ${player.qiRequired} Qi, but have ${player.qi}.`;
+    modal.classList.remove("hidden");
+    return;
   }
+
   player.qi = 0;
   const prevMajor = Math.floor(player.subRealmIndex / 10);
+
   if (player.subRealmIndex < subRealms.length - 1) {
     player.subRealmIndex++;
     player.qiRequired = subRealms[player.subRealmIndex].qiRequired;
     const newMajor = Math.floor(player.subRealmIndex / 10);
+
     if (newMajor > prevMajor) {
       player.statMultiplier *= MAJOR_REALM_STAT_BOOST;
       player.lifespan += LIFE_GAINS[newMajor];
@@ -103,13 +109,19 @@ function breakthrough() {
       player.statMultiplier *= MINOR_REALM_STAT_BOOST;
       player.lifespan += LIFE_GAINS[newMajor] * 0.5;
     }
+
   } else {
-    return alert("You’re already at Earth Immortal X!");
+    const modal = document.getElementById("notice-modal");
+    modal.querySelector(".modal-message").textContent = "You’re already at Earth Immortal X!";
+    modal.classList.remove("hidden");
+    return;
   }
+
   calculateStats();
   updateUI();
   savePlayerData();
 }
+
 
 function hideAllPanels() {
   document.getElementById("center-content")?.classList.add("hidden");
