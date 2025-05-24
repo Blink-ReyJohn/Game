@@ -1,3 +1,4 @@
+/* === General Reset === */
 body {
   font-family: 'Segoe UI', sans-serif;
   background-color: #1a1a1a;
@@ -12,6 +13,7 @@ h1, h2, h3, p {
   padding: 0;
 }
 
+/* === Layout === */
 .game-container {
   display: flex;
   flex-direction: row;
@@ -21,6 +23,7 @@ h1, h2, h3, p {
   box-sizing: border-box;
 }
 
+/* === Panels === */
 .panel {
   width: 25%;
   padding: 20px;
@@ -40,6 +43,7 @@ h1, h2, h3, p {
   border-left: 2px solid #333;
 }
 
+/* === Map & Inventory Section === */
 .map {
   width: 45%;
   text-align: center;
@@ -69,6 +73,7 @@ h1, h2, h3, p {
   background-color: #666;
 }
 
+/* === Buttons === */
 button {
   width: 100%;
   padding: 12px;
@@ -94,16 +99,19 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* === Colored Buttons === */
 .green { background-color: #2ecc71; color: #000; }
 .blue { background-color: #3498db; }
 .red { background-color: #e74c3c; }
 .yellow { background-color: #f1c40f; color: black; }
 .purple { background-color: #9b59b6; }
 
+/* === Stats === */
 .stats p {
   margin: 6px 0;
 }
 
+/* === Progress Bar === */
 .progress-bar {
   width: 100%;
   background-color: #444;
@@ -124,32 +132,16 @@ button:disabled {
   color: black;
 }
 
-.hidden {
-  display: none;
-}
-
-.inventory-item {
-  border: 1px solid #aaa;
-  padding: 10px;
-  text-align: center;
-  cursor: pointer;
-}
-.inventory-item:hover {
-  background-color: #333;
-  border-color: #fff;
-}
-
+/* === Modal === */
 .modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   background-color: rgba(0,0,0,0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 .modal-content {
@@ -158,8 +150,7 @@ button:disabled {
   border-radius: 10px;
   text-align: center;
   max-width: 400px;
-  width: 100%;
-  min-height: 150px;
+  width: 90%;
   box-sizing: border-box;
 }
 
@@ -171,4 +162,21 @@ button:disabled {
   border-radius: 5px;
   background-color: #333;
   color: #f0f0f0;
+}
+
+/* === Inventory === */
+.inventory-item {
+  border: 1px solid #aaa;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+.inventory-item:hover {
+  background-color: #333;
+  border-color: #fff;
+}
+
+/* === Helpers === */
+.hidden {
+  display: none;
 }
