@@ -129,6 +129,51 @@ function initializePlayer() {
   updateUI();
 }
 
+function toggleInventory() {
+  const map = document.getElementById("center-content");
+  const inv = document.getElementById("inventory-panel");
+
+  if (!map || !inv) return;
+
+  if (inv.classList.contains("hidden")) {
+    map.classList.add("hidden");
+    inv.classList.remove("hidden");
+    loadInventory();
+  } else {
+    map.classList.remove("hidden");
+    inv.classList.add("hidden");
+  }
+}
+
+function loadInventory() {
+  const grid = document.getElementById("inventory-grid");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+
+  const items = [
+    { name: "Qi Pill", desc: "Restores 50 Qi.", type: "consumable" },
+    { name: "Spirit Sword", desc: "A basic spiritual weapon.", type: "item" },
+    { name: "Beast Hide", desc: "Material for crafting.", type: "material" }
+  ];
+
+  items.forEach((item) => {
+    const cell = document.createElement("div");
+    cell.textContent = item.name;
+    cell.className = "inventory-item";
+    cell.onclick = () => showItemInfo(item);
+    grid.appendChild(cell);
+  });
+}
+
+function showItemInfo(item) {
+  document.getElementById("item-name").textContent = item.name;
+  document.getElementById("item-description").textContent = item.desc;
+  document.getElementById("use-button").style.display = item.type === "consumable" ? "inline-block" : "none";
+  document.getElementById("equip-button").style.display = item.type === "item" ? "inline-block" : "none";
+}
+
+
 window.onload = () => {
   initializePlayer();
   document.getElementById("modal-confirm-btn").addEventListener("click", () => {
