@@ -80,10 +80,10 @@ function initializePlayer() {
   player.lifespan = BASE_LIFESPAN;
   player.statMultiplier = 1;
   calculateStats();
-  showInitModal();
   updateUI();
 }
 
+// ── Weighted Random Physique ──
 function getRandomPhysique() {
   const total = physiquePool.reduce((sum, p) => sum + p.weight, 0);
   let pick = Math.random() * total;
@@ -100,10 +100,10 @@ function calculateStats() {
   const baseStrength = player.talent * player.physique.stats.strength;
   const baseQi = player.talent * player.physique.stats.qi;
   const baseSpeed = player.talent * player.physique.stats.speed;
-  player.stats.health = Math.round(baseHealth \* player.statMultiplier);
-  player.stats.strength = Math.round(baseStrength \* player.statMultiplier);
-  player.stats.qi = Math.round(baseQi \* player.statMultiplier);
-  player.stats.speed = Math.round(baseSpeed \* player.statMultiplier);
+  player.stats.health = Math.round(baseHealth * player.statMultiplier);
+  player.stats.strength = Math.round(baseStrength * player.statMultiplier);
+  player.stats.qi = Math.round(baseQi * player.statMultiplier);
+  player.stats.speed = Math.round(baseSpeed * player.statMultiplier);
 }
 
 // ── UI Update ──
@@ -118,26 +118,12 @@ function updateUI() {
   document.getElementById("speed").textContent = player.stats.speed;
   const realmObj = subRealms[player.subRealmIndex];
   document.getElementById("realm").textContent = realmObj.name;
-  const pct = Math.min(100, (player.qi / player.qiRequired) \* 100);
+  const pct = Math.min(100, (player.qi / player.qiRequired) * 100);
   const xpBar = document.getElementById("xp-bar");
   xpBar.style.width = pct + "%";
   xpBar.title = `${player.qi} / ${player.qiRequired} Qi`;
   document.getElementById("lifespan").textContent = player.lifespan;
 }
-
-// ── Show Initialization Modal ──
-function showInitModal() {
-  document.getElementById("modal-name").textContent = player.name;
-  document.getElementById("modal-talent").textContent = player.talent;
-  document.getElementById("modal-physique").textContent = player.physique.name;
-}
-
-// ── Confirm Initialization ──
-document
-  .getElementById("modal-confirm-btn")
-  .addEventListener("click", () => {
-    document.getElementById("init-modal").classList.add("hidden");
-  });
 
 // ── Cultivation Toggle ──
 function toggleCultivation() {
@@ -168,11 +154,9 @@ function breakthrough() {
     player.qiRequired = subRealms[player.subRealmIndex].qiRequired;
     const newMajor = Math.floor(player.subRealmIndex / 10);
     if (newMajor > prevMajor) {
-      // Major realm boost
       player.statMultiplier *= MAJOR_REALM_STAT_BOOST;
       player.lifespan += LIFE_GAINS[newMajor];
     } else {
-      // Minor realm boost
       player.statMultiplier *= MINOR_REALM_STAT_BOOST;
       player.lifespan += LIFE_GAINS[newMajor] * 0.5;
     }
