@@ -13,9 +13,16 @@ function startBattle() {
   appendLog(`<strong>⚔️ ${currentEnemy.name} (${currentEnemy.rarity}) appears!</strong>`);
 
   const imageBox = document.getElementById("enemy-image");
-  imageBox.innerHTML = `<img src='assets/enemies/${slug(currentEnemy.name)}.png' alt='${currentEnemy.name}' class='enemy-pic'/>`;
+  imageBox.innerHTML = `
+    <img 
+      src="https://raw.githubusercontent.com/Blink-ReyJohn/Game/main/assets/enemies/${slug(currentEnemy.name)}.png"
+      alt="${currentEnemy.name}"
+      class="enemy-pic"
+      onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/5/55/Question_Mark.svg';"
+    />
+  `;
 
-  // Defensive check for stats
+  // Ensure stats are valid
   if (!player.stats || !player.stats.health || !player.stats.strength) {
     calculateStats();
   }
@@ -74,6 +81,7 @@ function startBattle() {
     updateHPBars(playerCurrentHP, currentEnemyHP, player.stats.health, currentEnemyMax);
   }, intervalSpeed);
 }
+
 
 // Update HP bars
 function updateHPBars(pHP, eHP, pMax, eMax) {
