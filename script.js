@@ -52,26 +52,14 @@ let player = {
 
 let cultivationInterval = null;
 
-// --- Initialization ---
 function initializePlayer(){
-  // 1) Random name
   player.name = chineseNames[
     Math.floor(Math.random() * chineseNames.length)
   ];
-
-  // 2) Talent roll 1–100
   player.talent = Math.floor(Math.random() * 100) + 1;
-
-  // 3) Weighted Physique roll
   player.physique = getRandomPhysique();
-
-  // 4) Initial Qi requirement based on realm
   player.qiRequired = 100 * player.realmLevel;
-
-  // 5) Calculate stats from talent & physique
   calculateStats();
-
-  // 6) Push to UI
   updateUI();
 }
 
@@ -88,17 +76,11 @@ function getRandomPhysique(){
 
 // Calculate stats: stat = round(talent × physique multiplier)
 function calculateStats(){
-  // 1) Compute the base stats from talent & physique
   const baseHealth   = player.talent * player.physique.stats.health;
   const baseStrength = player.talent * player.physique.stats.strength;
   const baseQi       = player.talent * player.physique.stats.qi;
   const baseSpeed    = player.talent * player.physique.stats.speed;
-
-  // 2) Make each realm give a full +100% per realmIndex:
-  //    Realm 0 → ×1, Realm 1 → ×2, Realm 2 → ×3, etc.
   const realmMultiplier = player.realmIndex + 1;
-
-  // 3) Apply multiplier and round
   player.stats.health   = Math.round(baseHealth   * realmMultiplier);
   player.stats.strength = Math.round(baseStrength * realmMultiplier);
   player.stats.qi       = Math.round(baseQi       * realmMultiplier);
@@ -112,23 +94,19 @@ function updateUI(){
   document.getElementById('age').textContent         = player.age;
   document.getElementById('talent').textContent      = player.talent;
   document.getElementById('physique').textContent    = player.physique.name;
-
-  // Qi progress bar
+  
   const pct = Math.min(100, (player.qi / player.qiRequired) * 100);
   document.getElementById('xp-bar').style.width     = pct + '%';
 
-  // Realm + level
   const realmObj = realms[player.realmIndex];
   document.getElementById('realm').textContent      =
     `${realmObj.name} ${player.realmLevel}`;
 
-  // Stats display
   document.getElementById('health').textContent     = player.stats.health;
   document.getElementById('strength').textContent   = player.stats.strength;
   document.getElementById('qi').textContent         = player.stats.qi;
   document.getElementById('speed').textContent      = player.stats.speed;
 
-  // Lifespan
   document.getElementById('lifespan').textContent   = realmObj.lifespan;
 }
 
@@ -163,21 +141,25 @@ function toggleCultivation(){
 }
 
 // Breakthrough logic
-function breakthrough(){
-  if(player.qi < player.qiRequired){
-    alert('Not enough Qi to breakthrough!');
+function breakthrough() {
+  console.log("⏩ Breakthrough clicked");
+  console.log("Before → realmIndex:", player.realmIndex, "realmLevel:", player.realmLevel, "stats:", player.stats);
+  if (player.qi < player.qiRequired) {
+    alert("Not enough Qi to breakthrough!");
     return;
   }
   player.qi -= player.qiRequired;
   player.realmLevel++;
-  if(player.realmLevel > realms[player.realmIndex].levels){
+  if (player.realmLevel > realms[player.realmIndex].levels) {
     player.realmIndex++;
     player.realmLevel = 1;
   }
   player.qiRequired = 100 * player.realmLevel;
   calculateStats();
+  console.log("After  → realmIndex:", player.realmIndex, "realmLevel:", player.realmLevel, "stats:", player.stats);
   updateUI();
 }
+
 
 // Region stub
 function selectRegion(name){
