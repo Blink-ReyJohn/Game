@@ -88,11 +88,21 @@ function getRandomPhysique(){
 
 // Calculate stats: stat = round(talent × physique multiplier)
 function calculateStats(){
-  const realmBoost = 1 + player.realmIndex * 0.10;
-  player.stats.health   = Math.round(player.talent * player.physique.stats.health   * realmBoost);
-  player.stats.strength = Math.round(player.talent * player.physique.stats.strength * realmBoost);
-  player.stats.qi       = Math.round(player.talent * player.physique.stats.qi       * realmBoost);
-  player.stats.speed    = Math.round(player.talent * player.physique.stats.speed    * realmBoost);
+  // 1) Compute the base stats from talent & physique
+  const baseHealth   = player.talent * player.physique.stats.health;
+  const baseStrength = player.talent * player.physique.stats.strength;
+  const baseQi       = player.talent * player.physique.stats.qi;
+  const baseSpeed    = player.talent * player.physique.stats.speed;
+
+  // 2) Make each realm give a full +100% per realmIndex:
+  //    Realm 0 → ×1, Realm 1 → ×2, Realm 2 → ×3, etc.
+  const realmMultiplier = player.realmIndex + 1;
+
+  // 3) Apply multiplier and round
+  player.stats.health   = Math.round(baseHealth   * realmMultiplier);
+  player.stats.strength = Math.round(baseStrength * realmMultiplier);
+  player.stats.qi       = Math.round(baseQi       * realmMultiplier);
+  player.stats.speed    = Math.round(baseSpeed    * realmMultiplier);
 }
 
 
