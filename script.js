@@ -30,8 +30,12 @@ let player = {
   subRealmIndex: 0, qi: 0,
   qiRequired: BASE_QI_REQUIREMENT,
   lifespan: BASE_LIFESPAN,
-  statMultiplier: 1, cultivating: false
+  statMultiplier: 1, cultivating: false,
+  gold: 0,
+  spiritStones: 0,
+  inventory: []
 };
+
 
 let cultivationInterval = null;
 
