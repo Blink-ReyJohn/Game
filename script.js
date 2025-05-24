@@ -1,8 +1,6 @@
 // Player data
 const player = {
-  firstName: '',
-  surname: '',
-  name: 'Unnamed',
+  name: '',
   age: 13,
   realmStage: 0,
   qi: 0,
@@ -42,64 +40,29 @@ majorRealms.forEach(realm => {
   }
 });
 
-// Surnames
-const surnames = [
-  { name: "Li", meaning: "Strength and resilience" },
-  { name: "Zhao", meaning: "Brightness and nobility" },
-  { name: "Xuan", meaning: "Mystery and elegance" },
-  { name: "Feng", meaning: "Wind and freedom" },
-  { name: "Yun", meaning: "Clouds and grace" },
-  { name: "Wang", meaning: "Royal lineage" },
-  { name: "Long", meaning: "Dragon lineage" },
-  { name: "Qin", meaning: "Harmony and power" },
-  { name: "Shen", meaning: "Divinity and spirit" },
-  { name: "Chen", meaning: "Morning and clarity" }
+// List of 30 Chinese names
+const chineseNames = [
+  "Li Wei", "Wang Fang", "Zhang Min", "Liu Yang", "Chen Jie",
+  "Yang Jun", "Zhao Lei", "Huang Mei", "Zhou Ping", "Wu Qiang",
+  "Xu Hui", "Sun Lin", "Ma Chao", "Zhu Li", "Hu Dong",
+  "Guo Ying", "He Tao", "Gao Fei", "Lin Na", "Luo Bin",
+  "Zheng Hao", "Liang Yu", "Song Yan", "Xie Ning", "Han Rui",
+  "Tang Shan", "Feng Lan", "Yu Chen", "Dong Xi", "Xiao Qing"
 ];
 
-// Initialize surname dropdown
+// Initialize game
 window.onload = () => {
-  const dropdown = document.getElementById("surname-dropdown");
-  surnames.forEach(s => {
-    const option = document.createElement("option");
-    option.value = s.name;
-    option.textContent = s.name;
-    dropdown.appendChild(option);
-  });
-
-  document.getElementById("modal").classList.remove("hidden");
+  assignRandomName();
+  rollAttributes();
+  updateUI();
+  startGame();
 };
 
-// Update surname meaning
-function updateSurnameMeaning() {
-  const selected = document.getElementById("surname-dropdown").value;
-  const match = surnames.find(s => s.name === selected);
-  document.getElementById("surname-meaning").textContent = match ? match.meaning : "";
-}
-
-// Submit name
-function submitName() {
-  const first = document.getElementById("player-firstname-input").value.trim();
-  const last = document.getElementById("surname-dropdown").value;
-  if (!first || !last) return;
-
-  player.firstName = first;
-  player.surname = last;
-  player.name = `${last} ${first}`;
+// Assign a random Chinese name
+function assignRandomName() {
+  const randomIndex = Math.floor(Math.random() * chineseNames.length);
+  player.name = chineseNames[randomIndex];
   document.getElementById("player-name").innerText = player.name;
-
-  const modalText = document.getElementById("modal-text");
-  modalText.innerHTML = "Rolling Talent and Physique...";
-  document.getElementById("player-firstname-input").remove();
-  document.getElementById("surname-dropdown").remove();
-  document.getElementById("surname-meaning").remove();
-
-  const button = document.querySelector("#modal .modal-content button");
-  button.innerText = "Roll";
-  button.onclick = () => {
-    rollAttributes();
-    document.getElementById("modal").classList.add("hidden");
-    startGame();
-  };
 }
 
 // Roll talent and physique
@@ -107,7 +70,6 @@ function rollAttributes() {
   player.talent = Math.floor(Math.random() * 100) + 1;
   const physiques = ["Heavenly", "Earthly", "Mortal", "Demonic", "Divine"];
   player.physique = physiques[Math.floor(Math.random() * physiques.length)];
-  updateUI();
 }
 
 // Start game
@@ -122,7 +84,7 @@ function startGame() {
     if (player.cultivating) {
       const regen = 1 * player.qiRegenMultiplier;
       player.qi = Math.min(player.qi + regen, player.maxQi);
-      updateUI();
+      updateQiBar();
     }
   }, 500); // Qi regenerates every 0.5 seconds
 }
@@ -139,6 +101,15 @@ function updateUI() {
   document.getElementById("qi").innerText = Math.floor(player.qi);
   document.getElementById("speed").innerText = player.stats.speed;
   document.getElementById("lifespan").innerText = player.lifespan;
+  updateQiBar();
+}
+
+// Update Qi bar
+function updateQiBar() {
+  const qiPercentage = (player.qi / player.maxQi) * 100;
+  const qiBar = document.getElementById("xp-bar");
+  qiBar.style.width = `${qiPercentage}%`;
+  qiBar.innerText = `${Math.floor(qiPercentage)}%`;
 }
 
 // Toggle cultivation
