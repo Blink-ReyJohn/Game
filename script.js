@@ -154,13 +154,10 @@ function toggleInventory() {
 function loadInventory() {
   const grid = document.getElementById("inventory-grid");
   if (!grid) return;
+
   grid.innerHTML = "";
-  const items = [
-    { name: "Qi Pill", desc: "Restores 50 Qi.", type: "consumable" },
-    { name: "Spirit Sword", desc: "A basic spiritual weapon.", type: "item" },
-    { name: "Beast Hide", desc: "Material for crafting.", type: "material" }
-  ];
-  items.forEach((item) => {
+
+  player.inventory.forEach((item) => {
     const cell = document.createElement("div");
     cell.textContent = item.name;
     cell.className = "inventory-item";
