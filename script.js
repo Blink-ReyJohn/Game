@@ -42,7 +42,6 @@ const physiquePool = [
   { name: "Primordial Chaos Vessel", rarity: "Gold", weight: 0.5, stats: { health: 1.7, strength: 1.7, qi: 1.9, speed: 1.7 } }
 ];
 
-// --- Physique Picker ---
 function pickPhysique() {
   const totalWeight = physiquePool.reduce((sum, p) => sum + p.weight, 0);
   let roll = Math.random() * totalWeight;
@@ -53,7 +52,6 @@ function pickPhysique() {
   return physiquePool[0];
 }
 
-// --- NAME INPUT FLOW ---
 function submitName() {
   const name = document.getElementById("player-name-input").value.trim();
   if (!name) return;
@@ -70,7 +68,6 @@ function submitName() {
   button.onclick = rollStats;
 }
 
-// --- ROLL TALENT + PHYSIQUE ---
 function rollStats() {
   const modal = document.getElementById("modal");
   const modalText = document.getElementById("modal-text");
@@ -116,8 +113,25 @@ function setInitialStats() {
   player.stats.speed = Math.floor(70 * baseTalentFactor * boost.speed);
 }
 
+function getLifespanGain() {
+  const base = 3;
+  const talentBoost = Math.floor(player.talent * 0.7);
+
+  const rarityBonusMap = {
+    "Gray": 0,
+    "Green": 2,
+    "Blue": 4,
+    "Purple": 6,
+    "Gold": 8
+  };
+
+  const rarityBonus = rarityBonusMap[player.physiqueRarity] || 0;
+
+  return base + talentBoost + rarityBonus;
+}
+
 function startAgeTimer() {
-  ageTimer = setInterval(() => {
+  setInterval(() => {
     player.age++;
     updateUI();
   }, 30000);
@@ -137,7 +151,7 @@ function toggleCultivation() {
       resources.knowledge += 0.5;
 
       updateUI();
-    }, 3000);
+    }, 500); // Auto-cultivate every 0.5 seconds
   } else {
     clearInterval(cultivationInterval);
   }
@@ -156,7 +170,7 @@ function breakthrough() {
   if (newRealm) {
     player.realm = newRealm;
     player.realmStage++;
-    player.lifespan += 5;
+    player.lifespan += getLifespanGain();
     increaseStatsOnBreakthrough();
     document.getElementById("realm").innerText = player.realm;
     showModal(`Breakthrough successful! You've reached <strong>${player.realm}</strong>!`);
@@ -221,6 +235,8 @@ function updateUI() {
   document.getElementById("spirit-stones").innerText = Math.floor(resources.spiritStones);
   document.getElementById("immortal-stones").innerText = Math.floor(resources.immortalStones);
   document.getElementById("life-essence").innerText = Math.floor(resources.lifeEssence);
+
+  document.getElementById("lifespan").innerText = player.lifespan;
 }
 
 window.onload = () => {
