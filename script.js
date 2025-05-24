@@ -1,75 +1,56 @@
-// script.js
+// CONFIG
+const BASE_LIFESPAN = 85;
+const BASE_QI_REQUIREMENT = 100;
+const QI_SCALE = 1.35;
+const MAJOR_REALM_STAT_BOOST = 1.10;
+const MINOR_REALM_STAT_BOOST = 1 + (MAJOR_REALM_STAT_BOOST - 1) * 0.7;
+const LIFE_GAINS = [5,8,12,18,25,35,50,70,100,150];
 
-// ── Configuration Constants ──
-const BASE_LIFESPAN           = 85;      // starting human lifespan
-const BASE_QI_REQUIREMENT     = 100;     // Qi needed for the very first sub-realm
-const QI_SCALE                = 1.35;    // per-sub-realm Qi scaling factor
-const MAJOR_REALM_STAT_BOOST  = 1.10;    // +10% stat boost at major realm
-const MINOR_REALM_STAT_BOOST  = 1 + (MAJOR_REALM_STAT_BOOST - 1) * 0.7; // ~1.07 = 70% of major boost
-const LIFE_GAINS              = [5,8,12,18,25,35,50,70,100,150]; // lifespan gain per major realm
-
-// ── Name & Physique Pools ──
-const chineseNames = [
-  "Li Wei","Zhang Min","Wang Fang","Liu Yang","Chen Jie","Yang Li","Zhao Hui","Wu Qiang","Sun Mei","Zhou Lei",
+const chineseNames = [ "Li Wei","Zhang Min","Wang Fang","Liu Yang","Chen Jie","Yang Li","Zhao Hui","Wu Qiang","Sun Mei","Zhou Lei",
   "Xu Lin","Hu Jing","Guo Feng","He Yan","Gao Jun","Lin Tao","Ma Rui","Zheng Hao","Cai Ying","Deng Fei",
-  "Peng Bo","Lu Na","Tang Wei","Yin Yue","Xie Ming","Pan Li","Du Juan","Ren Xiang","Jiang Ping","Yao Chen"
-];
+  "Peng Bo","Lu Na","Tang Wei","Yin Yue","Xie Ming","Pan Li","Du Juan","Ren Xiang","Jiang Ping","Yao Chen" ];
 
 const physiquePool = [
-  { name:"Ordinary Vessel",   rarity:"Gray",  weight:30, stats:{health:0.9, strength:0.9, qi:0.9, speed:0.9} },
-  { name:"Frail Heart",        rarity:"Gray",  weight:30, stats:{health:0.8, strength:0.8, qi:1.0, speed:1.0} },
-  { name:"Stable Core",        rarity:"Green", weight:10, stats:{health:1.0, strength:1.0, qi:1.0, speed:1.0} },
-  { name:"Quick Meridian",     rarity:"Green", weight:10, stats:{health:0.9, strength:0.9, qi:1.1, speed:1.2} },
-  { name:"Iron Muscle",        rarity:"Green", weight:10, stats:{health:1.2, strength:1.2, qi:0.9, speed:0.9} },
-  { name:"Flowing River",      rarity:"Green", weight:5,  stats:{health:1.0, strength:1.0, qi:1.2, speed:1.1} },
-  { name:"Earthroot Body",     rarity:"Green", weight:5,  stats:{health:1.3, strength:1.1, qi:0.8, speed:0.8} },
-  { name:"Thunder Vessel",     rarity:"Blue",  weight:7,  stats:{health:1.0, strength:1.3, qi:1.2, speed:1.1} },
-  { name:"Frost Jade",         rarity:"Blue",  weight:7,  stats:{health:1.1, strength:0.9, qi:1.4, speed:1.0} },
-  { name:"Crimson Flame",      rarity:"Blue",  weight:6,  stats:{health:1.2, strength:1.2, qi:1.1, speed:1.1} },
-  { name:"Celestial Spirit",   rarity:"Purple",weight:2,  stats:{health:1.3, strength:1.4, qi:1.5, speed:1.2} },
-  { name:"Voidwalker",         rarity:"Purple",weight:2,  stats:{health:1.1, strength:1.1, qi:1.6, speed:1.5} },
-  { name:"Starlit Vessel",     rarity:"Purple",weight:1,  stats:{health:1.4, strength:1.3, qi:1.3, speed:1.3} },
-  { name:"Heavenly Dao Body",  rarity:"Gold",  weight:0.5,stats:{health:1.6, strength:1.6, qi:1.7, speed:1.6} },
-  { name:"Primordial Chaos",   rarity:"Gold",  weight:0.5,stats:{health:1.7, strength:1.7, qi:1.9, speed:1.7} }
+  { name:"Ordinary Vessel", weight:30, stats:{health:0.9, strength:0.9, qi:0.9, speed:0.9} },
+  { name:"Frail Heart", weight:30, stats:{health:0.8, strength:0.8, qi:1.0, speed:1.0} },
+  { name:"Stable Core", weight:10, stats:{health:1.0, strength:1.0, qi:1.0, speed:1.0} },
+  { name:"Quick Meridian", weight:10, stats:{health:0.9, strength:0.9, qi:1.1, speed:1.2} },
+  { name:"Iron Muscle", weight:10, stats:{health:1.2, strength:1.2, qi:0.9, speed:0.9} },
+  { name:"Flowing River", weight:5, stats:{health:1.0, strength:1.0, qi:1.2, speed:1.1} },
+  { name:"Earthroot Body", weight:5, stats:{health:1.3, strength:1.1, qi:0.8, speed:0.8} },
+  { name:"Thunder Vessel", weight:7, stats:{health:1.0, strength:1.3, qi:1.2, speed:1.1} },
+  { name:"Frost Jade", weight:7, stats:{health:1.1, strength:0.9, qi:1.4, speed:1.0} },
+  { name:"Crimson Flame", weight:6, stats:{health:1.2, strength:1.2, qi:1.1, speed:1.1} },
+  { name:"Celestial Spirit", weight:2, stats:{health:1.3, strength:1.4, qi:1.5, speed:1.2} },
+  { name:"Voidwalker", weight:2, stats:{health:1.1, strength:1.1, qi:1.6, speed:1.5} },
+  { name:"Starlit Vessel", weight:1, stats:{health:1.4, strength:1.3, qi:1.3, speed:1.3} },
+  { name:"Heavenly Dao Body", weight:0.5, stats:{health:1.6, strength:1.6, qi:1.7, speed:1.6} },
+  { name:"Primordial Chaos", weight:0.5, stats:{health:1.7, strength:1.7, qi:1.9, speed:1.7} }
 ];
 
-// ── Build the 100 Sub-Realms Array ──
-const majorNames = [
-  "Qi Gathering", "Foundation Building", "Core Formation",
-  "Golden Core", "Soul Formation", "Nascent Soul",
-  "Nihility", "Ascension", "Half Immortal", "Earth Immortal"
-];
-
+const majorNames = [ "Qi Gathering","Foundation Building","Core Formation","Golden Core","Soul Formation","Nascent Soul","Nihility","Ascension","Half Immortal","Earth Immortal" ];
 const subRealms = [];
 let qiReq = BASE_QI_REQUIREMENT;
 for (let m = 0; m < majorNames.length; m++) {
   for (let lvl = 1; lvl <= 10; lvl++) {
-    subRealms.push({
-      name: `${majorNames[m]} ${lvl}`,
-      qiRequired: Math.round(qiReq)
-    });
+    subRealms.push({ name: `${majorNames[m]} ${lvl}`, qiRequired: Math.round(qiReq) });
     qiReq *= QI_SCALE;
   }
 }
 
-// ── Player State ──
+// PLAYER
 let player = {
-  name: "",
-  age: 13,
-  talent: 0,
-  physique: null,
+  name: "", age: 13, talent: 0, physique: null,
   stats: { health: 0, strength: 0, qi: 0, speed: 0 },
-  subRealmIndex: 0,
-  qi: 0,
+  subRealmIndex: 0, qi: 0,
   qiRequired: subRealms[0].qiRequired,
   lifespan: BASE_LIFESPAN,
-  statMultiplier: 1,
-  cultivating: false
+  statMultiplier: 1, cultivating: false
 };
 
 let cultivationInterval = null;
 
-// ── Initialization ──
+// INIT
 function initializePlayer() {
   player.name = chineseNames[Math.floor(Math.random() * chineseNames.length)];
   player.talent = Math.floor(Math.random() * 100) + 1;
@@ -84,17 +65,6 @@ function initializePlayer() {
   updateUI();
 }
 
-function showInitModal() {
-  document.getElementById("modal-name").textContent = player.name;
-  document.getElementById("modal-talent").textContent = player.talent;
-  document.getElementById("modal-physique").textContent = player.physique.name;
-  document.getElementById("init-modal").classList.remove("hidden");
-}
-
-document.getElementById("modal-confirm-btn").addEventListener("click", () => {
-  document.getElementById("init-modal").classList.add("hidden");
-});
-
 function getRandomPhysique() {
   const total = physiquePool.reduce((sum, p) => sum + p.weight, 0);
   let pick = Math.random() * total;
@@ -106,16 +76,25 @@ function getRandomPhysique() {
 }
 
 function calculateStats() {
-  const baseHealth = player.talent * player.physique.stats.health;
-  const baseStrength = player.talent * player.physique.stats.strength;
-  const baseQi = player.talent * player.physique.stats.qi;
-  const baseSpeed = player.talent * player.physique.stats.speed;
-  player.stats.health = Math.round(baseHealth * player.statMultiplier);
-  player.stats.strength = Math.round(baseStrength * player.statMultiplier);
-  player.stats.qi = Math.round(baseQi * player.statMultiplier);
-  player.stats.speed = Math.round(baseSpeed * player.statMultiplier);
+  const base = player.talent;
+  const mod = player.physique.stats;
+  player.stats.health = Math.round(base * mod.health * player.statMultiplier);
+  player.stats.strength = Math.round(base * mod.strength * player.statMultiplier);
+  player.stats.qi = Math.round(base * mod.qi * player.statMultiplier);
+  player.stats.speed = Math.round(base * mod.speed * player.statMultiplier);
 }
 
+function showInitModal() {
+  document.getElementById("modal-name").textContent = player.name;
+  document.getElementById("modal-talent").textContent = player.talent;
+  document.getElementById("modal-physique").textContent = player.physique.name;
+  document.getElementById("init-modal").classList.remove("hidden");
+}
+document.getElementById("modal-confirm-btn").addEventListener("click", () => {
+  document.getElementById("init-modal").classList.add("hidden");
+});
+
+// UI
 function updateUI() {
   document.getElementById("player-name").textContent = player.name;
   document.getElementById("age").textContent = player.age;
@@ -128,12 +107,12 @@ function updateUI() {
   const realmObj = subRealms[player.subRealmIndex];
   document.getElementById("realm").textContent = realmObj.name;
   const pct = Math.min(100, (player.qi / player.qiRequired) * 100);
-  const xpBar = document.getElementById("xp-bar");
-  xpBar.style.width = pct + "%";
-  xpBar.title = `${player.qi} / ${player.qiRequired} Qi`;
+  document.getElementById("xp-bar").style.width = pct + "%";
+  document.getElementById("xp-bar").title = `${player.qi} / ${player.qiRequired} Qi`;
   document.getElementById("lifespan").textContent = player.lifespan;
 }
 
+// CULTIVATE
 function toggleCultivation() {
   const btn = document.getElementById("cultivate-btn");
   if (!player.cultivating) {
@@ -150,6 +129,7 @@ function toggleCultivation() {
   }
 }
 
+// BREAKTHROUGH
 function breakthrough() {
   if (player.qi < player.qiRequired) {
     return alert(`Need ${player.qiRequired} Qi, but have ${player.qi}.`);
@@ -174,8 +154,48 @@ function breakthrough() {
   updateUI();
 }
 
+// REGIONS
 function selectRegion(name) {
   alert(`You travel to ${name}. (Event logic goes here!)`);
 }
 
+// INVENTORY
+function toggleInventory() {
+  const map = document.getElementById("center-content");
+  const inv = document.getElementById("inventory-panel");
+  if (inv.classList.contains("hidden")) {
+    map.classList.add("hidden");
+    inv.classList.remove("hidden");
+    loadInventory();
+  } else {
+    map.classList.remove("hidden");
+    inv.classList.add("hidden");
+  }
+}
+
+function loadInventory() {
+  const grid = document.getElementById("inventory-grid");
+  grid.innerHTML = "";
+  const items = [
+    { name: "Qi Pill", desc: "Restores 50 Qi.", type: "consumable" },
+    { name: "Spirit Sword", desc: "A basic spiritual weapon.", type: "item" },
+    { name: "Beast Hide", desc: "Material for crafting.", type: "material" }
+  ];
+  items.forEach(item => {
+    const cell = document.createElement("div");
+    cell.textContent = item.name;
+    cell.className = "inventory-item";
+    cell.onclick = () => showItemInfo(item);
+    grid.appendChild(cell);
+  });
+}
+
+function showItemInfo(item) {
+  document.getElementById("item-name").textContent = item.name;
+  document.getElementById("item-description").textContent = item.desc;
+  document.getElementById("use-button").style.display = item.type === "consumable" ? "inline-block" : "none";
+  document.getElementById("equip-button").style.display = item.type === "item" ? "inline-block" : "none";
+}
+
+// INIT
 window.onload = initializePlayer;
