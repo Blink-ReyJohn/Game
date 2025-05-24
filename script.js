@@ -1,4 +1,4 @@
-// script.js (Full Version with Working Modal)
+// script.js (Full Version with Working Modal + Saving)
 
 // CONFIG
 const BASE_LIFESPAN = 85;
@@ -72,6 +72,7 @@ function toggleCultivation() {
     cultivationInterval = setInterval(() => {
       player.qi = Math.min(player.qiRequired, player.qi + player.stats.qi);
       updateUI();
+      savePlayerData();
     }, 1000);
   } else {
     player.cultivating = false;
@@ -102,6 +103,7 @@ function breakthrough() {
   }
   calculateStats();
   updateUI();
+  savePlayerData();
 }
 
 function selectRegion(name) {
@@ -132,9 +134,7 @@ function initializePlayer() {
 function toggleInventory() {
   const map = document.getElementById("center-content");
   const inv = document.getElementById("inventory-panel");
-
   if (!map || !inv) return;
-
   if (inv.classList.contains("hidden")) {
     map.classList.add("hidden");
     inv.classList.remove("hidden");
@@ -148,15 +148,12 @@ function toggleInventory() {
 function loadInventory() {
   const grid = document.getElementById("inventory-grid");
   if (!grid) return;
-
   grid.innerHTML = "";
-
   const items = [
     { name: "Qi Pill", desc: "Restores 50 Qi.", type: "consumable" },
     { name: "Spirit Sword", desc: "A basic spiritual weapon.", type: "item" },
     { name: "Beast Hide", desc: "Material for crafting.", type: "material" }
   ];
-
   items.forEach((item) => {
     const cell = document.createElement("div");
     cell.textContent = item.name;
@@ -182,30 +179,18 @@ function loadPlayerData() {
   const saved = localStorage.getItem("cultivationGameSave");
   if (saved) {
     player = JSON.parse(saved);
-
-    // Ensure values like qiRequired and multipliers are set again
     const realmIndex = player.subRealmIndex ?? 0;
     player.qiRequired = subRealms[realmIndex]?.qiRequired ?? 100;
-
-    // Re-apply stat multiplier based on realm
     const major = Math.floor(realmIndex / 10);
     const minor = realmIndex % 10;
     player.statMultiplier = 1;
-
-    for (let i = 0; i < major; i++) {
-      player.statMultiplier *= 1.1;
-    }
-
-    for (let i = 0; i < minor; i++) {
-      player.statMultiplier *= 1 + (0.1 * 0.7); // 70% of major gain
-    }
-
-    // Now recalculate and update
+    player.lifespan = BASE_LIFESPAN;
+    for (let i = 0; i < major; i++) player.statMultiplier *= 1.1, player.lifespan += LIFE_GAINS[i];
+    for (let i = 0; i < minor; i++) player.statMultiplier *= 1 + (0.1 * 0.7), player.lifespan += LIFE_GAINS[major] * 0.5;
     calculateStats();
     updateUI();
   }
 }
-
 
 function resetGame() {
   const confirmReset = confirm("Are you sure you want to reset your character and start over?");
@@ -215,19 +200,15 @@ function resetGame() {
   }
 }
 
-
 window.onload = () => {
-  // Auto-save every 10 minutes
   setInterval(savePlayerData, 10 * 60 * 1000);
   loadPlayerData();
-
   if (!player.name) {
     initializePlayer();
     showInitModal();
   } else {
     updateUI();
   }
-
   document.getElementById("modal-confirm-btn").addEventListener("click", () => {
     document.getElementById("init-modal").classList.add("hidden");
     savePlayerData();
