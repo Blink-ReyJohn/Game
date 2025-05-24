@@ -66,6 +66,8 @@ function updateUI() {
   document.getElementById("xp-bar").style.width = pct + "%";
   document.getElementById("xp-bar").title = `${player.qi} / ${player.qiRequired} Qi`;
   document.getElementById("lifespan").textContent = player.lifespan;
+  document.getElementById("gold").textContent = player.gold;
+  document.getElementById("spirit-stones").textContent = player.spiritStones;
 }
 
 function toggleCultivation() {
