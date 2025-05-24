@@ -1,4 +1,5 @@
 let currentBattleInterval;
+let currentEnemy;
 let playerCurrentHP;
 let currentEnemyHP;
 let currentEnemyMax;
@@ -9,8 +10,9 @@ function startBattle() {
   log.innerHTML = "";
 
   const enemy = getRandomEnemyFromList();
-  appendLog(`<strong>⚔️ ${enemy.name} (${enemy.rarity}) appears!</strong>`);
+  currentEnemy = enemy;
 
+  appendLog(`<strong>⚔️ ${enemy.name} (${enemy.rarity}) appears!</strong>`);
   const imageBox = document.getElementById("enemy-image");
   imageBox.innerHTML = `<img src='assets/enemies/${slug(enemy.name)}.png' alt='${enemy.name}' class='enemy-pic'/>`;
 
@@ -20,21 +22,23 @@ function startBattle() {
 
   updateHPBars(playerCurrentHP, currentEnemyHP, player.stats.health, currentEnemyMax);
 
-  const speedFactor = 1 - (player.subRealmIndex * 0.005); // faster with higher realm
+  const speedFactor = 1 - (player.subRealmIndex * 0.005);
   const intervalSpeed = Math.max(300, 1000 * speedFactor);
 
   currentBattleInterval = setInterval(() => {
-    // PLAYER TURN
-    let crit = Math.random() < 0.2; // 20% crit chance
+    // Player attack
+    let crit = Math.random() < 0.2;
     let damage = crit ? Math.floor(player.stats.strength * 1.5) : player.stats.strength;
     currentEnemyHP -= damage;
     appendLog(`<span class='battle-hit'>You dealt ${damage} damage${crit ? " (CRIT!)" : ""}</span>`);
     showFloatingText(`-${damage}`, true);
 
+    // Check if enemy defeated
     if (currentEnemyHP <= 0) {
       clearInterval(currentBattleInterval);
-      appendLog(`<strong class='battle-drop'>🎉 You defeated the ${enemy.name}!</strong>`);
-      const mod = rarityModifiers[enemy.rarity];
+      appendLog(`<strong class='battle-drop'>🎉 You defeated the ${currentEnemy.name}!</strong>`);
+
+      const mod = rarityModifiers[currentEnemy.rarity];
       const gold = Math.floor(Math.random() * 20 * mod.xp);
       const stones = Math.floor(Math.random() * 5 * mod.xp);
       player.gold += gold;
@@ -53,25 +57,25 @@ function startBattle() {
       return;
     }
 
-    // ENEMY TURN
-    let enemyDamage = enemy.strength;
+    // Enemy attack
+    let enemyDamage = currentEnemy.strength;
     playerCurrentHP -= enemyDamage;
-    appendLog(`<span class='battle-hit'>${enemy.name} hits you for ${enemyDamage}!</span>`);
+    appendLog(`<span class='battle-hit'>${currentEnemy.name} hits you for ${enemyDamage}!</span>`);
     showFloatingText(`-${enemyDamage}`, false);
 
     if (playerCurrentHP <= 0) {
       clearInterval(currentBattleInterval);
-      appendLog(`<span class='battle-hit'>💀 You were defeated by the ${enemy.name}...</span>`);
+      appendLog(`<span class='battle-hit'>💀 You were defeated by the ${currentEnemy.name}...</span>`);
     }
 
     updateHPBars(playerCurrentHP, currentEnemyHP, player.stats.health, currentEnemyMax);
   }, intervalSpeed);
 }
 
-// Update health bars
+// Update HP bars
 function updateHPBars(pHP, eHP, pMax, eMax) {
-  document.getElementById("player-hp-bar").style.width = `${(pHP / pMax) * 100}%`;
-  document.getElementById("enemy-hp-bar").style.width = `${(eHP / eMax) * 100}%`;
+  document.getElementById("player-hp-bar").style.width = `${Math.max(0, (pHP / pMax) * 100)}%`;
+  document.getElementById("enemy-hp-bar").style.width = `${Math.max(0, (eHP / eMax) * 100)}%`;
 }
 
 // Floating damage text
@@ -101,7 +105,7 @@ function runFromBattle() {
   document.getElementById("center-content").classList.remove("hidden");
 }
 
-// Battle enemies + loot config
+// Battle enemies config
 const rarityModifiers = {
   Common: { xp: 1, dropChance: 0.2 },
   Rare: { xp: 2, dropChance: 0.4 },
@@ -122,7 +126,7 @@ const battleEnemies = [
   { name: "Voidscale Dragonling", rarity: "Legendary", baseStats: { health: 200, strength: 30, speed: 28 } }
 ];
 
-// Generate enemy
+// Get random enemy
 function getRandomEnemyFromList() {
   const base = battleEnemies[Math.floor(Math.random() * battleEnemies.length)];
   const variance = 0.2;
@@ -136,7 +140,7 @@ function getRandomEnemyFromList() {
   };
 }
 
-// Slugify enemy name
+// Slugify
 function slug(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
