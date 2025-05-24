@@ -1,4 +1,4 @@
-/* GENERAL RESET & BASE */
+/* General Reset */
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
@@ -7,18 +7,17 @@ body {
   overflow: hidden;
 }
 
-h1, h2, h3 {
-  margin-top: 0;
+h1, h2, h3, p {
+  margin: 5px 0;
 }
 
-/* GAME CONTAINER */
+/* Layout */
 .game-container {
   display: flex;
   height: 100vh;
-  overflow: hidden;
 }
 
-/* PANEL COMMON STYLES */
+/* Panels */
 .panel {
   width: 25%;
   background-color: #222;
@@ -35,29 +34,44 @@ h1, h2, h3 {
   border-left: 2px solid #333;
 }
 
-.stats p, .panel p {
-  margin: 8px 0;
-}
-
+/* Buttons */
 button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin-top: 10px;
   font-weight: bold;
-  cursor: pointer;
-  border: none;
+  font-size: 15px;
+  background-color: #2e2e2e;
   color: white;
-  transition: background 0.3s;
+  border: 2px solid #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* BUTTON COLORS */
-.green { background-color: #3f3; }
+button:hover {
+  background-color: #444;
+  border-color: #aaa;
+}
+
+button:disabled {
+  background-color: #555;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* Colored Buttons */
+.green { background-color: #3f3; color: #000; }
 .blue { background-color: #06f; }
 .red { background-color: #d33; }
 .yellow { background-color: #fc3; color: black; }
 .purple { background-color: #93f; }
 
-/* PROGRESS BAR */
+/* Stats Section */
+.stats p {
+  margin: 6px 0;
+}
+
+/* Progress Bar */
 .progress-bar {
   background-color: #333;
   height: 20px;
@@ -76,7 +90,7 @@ button {
   color: black;
 }
 
-/* MAP PANEL */
+/* Map Panel */
 .map {
   flex: 1;
   padding: 20px;
@@ -95,7 +109,7 @@ button {
   margin-bottom: 10px;
 }
 
-/* REGION SELECT */
+/* Region Select Buttons */
 .region-select {
   display: flex;
   flex-wrap: wrap;
@@ -117,7 +131,7 @@ button {
   background-color: #666;
 }
 
-/* MODAL */
+/* Modal Styling */
 .modal {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -125,7 +139,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 1000;
 }
 
 .modal-content {
@@ -135,10 +149,9 @@ button {
   text-align: center;
   max-width: 400px;
   width: 100%;
-  min-height: 150px; /* FIX: prevent jumpy size */
+  min-height: 150px;
   box-sizing: border-box;
 }
-
 
 .modal-content input {
   padding: 10px;
