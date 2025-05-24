@@ -182,10 +182,30 @@ function loadPlayerData() {
   const saved = localStorage.getItem("cultivationGameSave");
   if (saved) {
     player = JSON.parse(saved);
+
+    // Ensure values like qiRequired and multipliers are set again
+    const realmIndex = player.subRealmIndex ?? 0;
+    player.qiRequired = subRealms[realmIndex]?.qiRequired ?? 100;
+
+    // Re-apply stat multiplier based on realm
+    const major = Math.floor(realmIndex / 10);
+    const minor = realmIndex % 10;
+    player.statMultiplier = 1;
+
+    for (let i = 0; i < major; i++) {
+      player.statMultiplier *= 1.1;
+    }
+
+    for (let i = 0; i < minor; i++) {
+      player.statMultiplier *= 1 + (0.1 * 0.7); // 70% of major gain
+    }
+
+    // Now recalculate and update
     calculateStats();
     updateUI();
   }
 }
+
 
 function resetGame() {
   const confirmReset = confirm("Are you sure you want to reset your character and start over?");
