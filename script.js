@@ -173,10 +173,43 @@ function showItemInfo(item) {
   document.getElementById("equip-button").style.display = item.type === "item" ? "inline-block" : "none";
 }
 
+function savePlayerData() {
+  const data = JSON.stringify(player);
+  localStorage.setItem("cultivationGameSave", data);
+}
+
+function loadPlayerData() {
+  const saved = localStorage.getItem("cultivationGameSave");
+  if (saved) {
+    player = JSON.parse(saved);
+    calculateStats();
+    updateUI();
+  }
+}
+
+function resetGame() {
+  const confirmReset = confirm("Are you sure you want to reset your character and start over?");
+  if (confirmReset) {
+    localStorage.removeItem("cultivationGameSave");
+    location.reload();
+  }
+}
+
 
 window.onload = () => {
-  initializePlayer();
+  // Auto-save every 10 minutes
+  setInterval(savePlayerData, 10 * 60 * 1000);
+  loadPlayerData();
+
+  if (!player.name) {
+    initializePlayer();
+    showInitModal();
+  } else {
+    updateUI();
+  }
+
   document.getElementById("modal-confirm-btn").addEventListener("click", () => {
     document.getElementById("init-modal").classList.add("hidden");
+    savePlayerData();
   });
 };
