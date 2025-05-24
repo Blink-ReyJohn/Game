@@ -9,16 +9,20 @@ function startBattle() {
   const log = document.getElementById("battle-log");
   log.innerHTML = "";
 
-  const enemy = getRandomEnemyFromList();
-  currentEnemy = enemy;
+  currentEnemy = getRandomEnemyFromList();
+  appendLog(`<strong>⚔️ ${currentEnemy.name} (${currentEnemy.rarity}) appears!</strong>`);
 
-  appendLog(`<strong>⚔️ ${enemy.name} (${enemy.rarity}) appears!</strong>`);
   const imageBox = document.getElementById("enemy-image");
-  imageBox.innerHTML = `<img src='assets/enemies/${slug(enemy.name)}.png' alt='${enemy.name}' class='enemy-pic'/>`;
+  imageBox.innerHTML = `<img src='assets/enemies/${slug(currentEnemy.name)}.png' alt='${currentEnemy.name}' class='enemy-pic'/>`;
+
+  // Defensive check for stats
+  if (!player.stats || !player.stats.health || !player.stats.strength) {
+    calculateStats();
+  }
 
   playerCurrentHP = player.stats.health;
-  currentEnemyHP = enemy.health;
-  currentEnemyMax = enemy.health;
+  currentEnemyHP = currentEnemy.health;
+  currentEnemyMax = currentEnemy.health;
 
   updateHPBars(playerCurrentHP, currentEnemyHP, player.stats.health, currentEnemyMax);
 
@@ -26,14 +30,13 @@ function startBattle() {
   const intervalSpeed = Math.max(300, 1000 * speedFactor);
 
   currentBattleInterval = setInterval(() => {
-    // Player attack
-    let crit = Math.random() < 0.2;
-    let damage = crit ? Math.floor(player.stats.strength * 1.5) : player.stats.strength;
+    // Player Turn
+    const crit = Math.random() < 0.2;
+    const damage = crit ? Math.floor(player.stats.strength * 1.5) : player.stats.strength;
     currentEnemyHP -= damage;
     appendLog(`<span class='battle-hit'>You dealt ${damage} damage${crit ? " (CRIT!)" : ""}</span>`);
     showFloatingText(`-${damage}`, true);
 
-    // Check if enemy defeated
     if (currentEnemyHP <= 0) {
       clearInterval(currentBattleInterval);
       appendLog(`<strong class='battle-drop'>🎉 You defeated the ${currentEnemy.name}!</strong>`);
@@ -57,8 +60,8 @@ function startBattle() {
       return;
     }
 
-    // Enemy attack
-    let enemyDamage = currentEnemy.strength;
+    // Enemy Turn
+    const enemyDamage = currentEnemy.strength;
     playerCurrentHP -= enemyDamage;
     appendLog(`<span class='battle-hit'>${currentEnemy.name} hits you for ${enemyDamage}!</span>`);
     showFloatingText(`-${enemyDamage}`, false);
@@ -105,7 +108,7 @@ function runFromBattle() {
   document.getElementById("center-content").classList.remove("hidden");
 }
 
-// Battle enemies config
+// Enemy rarity scaling
 const rarityModifiers = {
   Common: { xp: 1, dropChance: 0.2 },
   Rare: { xp: 2, dropChance: 0.4 },
@@ -113,6 +116,7 @@ const rarityModifiers = {
   Legendary: { xp: 5, dropChance: 0.8 }
 };
 
+// Enemy list
 const battleEnemies = [
   { name: "Feral Tiger", rarity: "Common", baseStats: { health: 80, strength: 10, speed: 12 } },
   { name: "Stone-Scaled Serpent", rarity: "Common", baseStats: { health: 100, strength: 8, speed: 10 } },
@@ -126,7 +130,7 @@ const battleEnemies = [
   { name: "Voidscale Dragonling", rarity: "Legendary", baseStats: { health: 200, strength: 30, speed: 28 } }
 ];
 
-// Get random enemy
+// Enemy generator
 function getRandomEnemyFromList() {
   const base = battleEnemies[Math.floor(Math.random() * battleEnemies.length)];
   const variance = 0.2;
@@ -140,12 +144,12 @@ function getRandomEnemyFromList() {
   };
 }
 
-// Slugify
+// Slugify name for image filenames
 function slug(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-// Log helper
+// Log appender
 function appendLog(html) {
   const log = document.getElementById("battle-log");
   const line = document.createElement("p");
