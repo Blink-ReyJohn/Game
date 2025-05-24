@@ -186,6 +186,9 @@ function loadPlayerData() {
     player.qiRequired = subRealms[realmIndex]?.qiRequired ?? 100;
     const major = Math.floor(realmIndex / 10);
     const minor = realmIndex % 10;
+    player.gold = player.gold ?? 0;
+    player.spiritStones = player.spiritStones ?? 0;
+    player.inventory = player.inventory ?? [];
     player.statMultiplier = 1;
     player.lifespan = BASE_LIFESPAN;
     for (let i = 0; i < major; i++) player.statMultiplier *= 1.1, player.lifespan += LIFE_GAINS[i];
