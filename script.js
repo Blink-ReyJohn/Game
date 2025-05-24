@@ -1,187 +1,82 @@
-// Player data
-const player = {
-  name: '',
-  age: 13,
-  realmStage: 0,
-  qi: 0,
-  maxQi: 100,
-  stats: {
-    strength: 10,
-    agility: 10,
-    intelligence: 10,
-    health: 100,
-    speed: 10
-  },
-  qiRegenMultiplier: 1,
-  talent: 0,
-  physique: 'Unknown',
-  lifespan: 85,
-  cultivating: false
-};
+// script.js
 
-// Realm stages
-const majorRealms = [
-  "Qi Gathering",
-  "Foundation Building",
-  "Core Formation",
-  "Golden Core",
-  "Soul Formation",
-  "Nascent Soul",
-  "Nihility",
-  "Ascension",
-  "Half Immortal",
-  "Earth Immortal"
-];
-
-const realmStages = [];
-majorRealms.forEach(realm => {
-  for (let i = 1; i <= 10; i++) {
-    realmStages.push(`${realm} ${i}`);
-  }
-});
-
-// List of 30 Chinese names
+// --- Chinese Name Pool ---
 const chineseNames = [
-  "Li Wei", "Wang Fang", "Zhang Min", "Liu Yang", "Chen Jie",
-  "Yang Jun", "Zhao Lei", "Huang Mei", "Zhou Ping", "Wu Qiang",
-  "Xu Hui", "Sun Lin", "Ma Chao", "Zhu Li", "Hu Dong",
-  "Guo Ying", "He Tao", "Gao Fei", "Lin Na", "Luo Bin",
-  "Zheng Hao", "Liang Yu", "Song Yan", "Xie Ning", "Han Rui",
-  "Tang Shan", "Feng Lan", "Yu Chen", "Dong Xi", "Xiao Qing"
+  "Li Wei", "Zhang Min", "Wang Fang", "Liu Yang", "Chen Jie", "Yang Li", "Zhao Hui", "Wu Qiang", "Sun Mei", "Zhou Lei",
+  "Xu Lin", "Hu Jing", "Guo Feng", "He Yan", "Gao Jun", "Lin Tao", "Ma Rui", "Zheng Hao", "Cai Ying", "Deng Fei",
+  "Peng Bo", "Lu Na", "Tang Wei", "Yin Yue", "Xie Ming", "Pan Li", "Du Juan", "Ren Xiang", "Jiang Ping", "Yao Chen"
 ];
 
-// Initialize game
-window.onload = () => {
-  assignRandomName();
-  rollAttributes();
-  updateUI();
-  startGame();
+// --- Physique Pool ---
+const physiquePool = [
+  { name: "Ordinary Vessel", rarity: "Gray", weight: 30, stats: { health: 0.9, strength: 0.9, qi: 0.9, speed: 0.9 } },
+  { name: "Frail Heart", rarity: "Gray", weight: 30, stats: { health: 0.8, strength: 0.8, qi: 1.0, speed: 1.0 } },
+  { name: "Stable Core", rarity: "Green", weight: 10, stats: { health: 1.0, strength: 1.0, qi: 1.0, speed: 1.0 } },
+  { name: "Quick Meridian", rarity: "Green", weight: 10, stats: { health: 0.9, strength: 0.9, qi: 1.1, speed: 1.2 } },
+  { name: "Iron Muscle", rarity: "Green", weight: 10, stats: { health: 1.2, strength: 1.2, qi: 0.9, speed: 0.9 } },
+  { name: "Flowing River", rarity: "Green", weight: 5, stats: { health: 1.0, strength: 1.0, qi: 1.2, speed: 1.1 } },
+  { name: "Earthroot Body", rarity: "Green", weight: 5, stats: { health: 1.3, strength: 1.1, qi: 0.8, speed: 0.8 } },
+  { name: "Thunder Vessel", rarity: "Blue", weight: 7, stats: { health: 1.0, strength: 1.3, qi: 1.2, speed: 1.1 } },
+  { name: "Frost Jade", rarity: "Blue", weight: 7, stats: { health: 1.1, strength: 0.9, qi: 1.4, speed: 1.0 } },
+  { name: "Crimson Flame", rarity: "Blue", weight: 6, stats: { health: 1.2, strength: 1.2, qi: 1.1, speed: 1.1 } },
+  { name: "Celestial Spirit", rarity: "Purple", weight: 2, stats: { health: 1.3, strength: 1.4, qi: 1.5, speed: 1.2 } },
+  { name: "Voidwalker", rarity: "Purple", weight: 2, stats: { health: 1.1, strength: 1.1, qi: 1.6, speed: 1.5 } },
+  { name: "Starlit Vessel", rarity: "Purple", weight: 1, stats: { health: 1.4, strength: 1.3, qi: 1.3, speed: 1.3 } },
+  { name: "Heavenly Dao Body", rarity: "Gold", weight: 0.5, stats: { health: 1.6, strength: 1.6, qi: 1.7, speed: 1.6 } },
+  { name: "Primordial Chaos Vessel", rarity: "Gold", weight: 0.5, stats: { health: 1.7, strength: 1.7, qi: 1.9, speed: 1.7 } }
+];
+
+// --- Realm Definitions ---
+const realms = [
+  { name: "Qi Gathering", levels: 10, lifespan: 10 },
+  { name: "Foundation Building", levels: 10, lifespan: 20 },
+  { name: "Core Formation", levels: 10, lifespan: 30 },
+  { name: "Golden Core", levels: 10, lifespan: 50 },
+  { name: "Soul Formation", levels: 10, lifespan: 70 },
+  { name: "Nascent Soul", levels: 10, lifespan: 100 },
+  { name: "Nihility", levels: 10, lifespan: 150 },
+  { name: "Ascension", levels: 10, lifespan: 200 },
+  { name: "Half Immortal", levels: 10, lifespan: 300 },
+  { name: "Earth Immortal", levels: 1, lifespan: 500 }
+];
+
+// --- Player Object ---
+let player = {
+  name: "",
+  age: 13,
+  talent: 0,
+  physique: "",
+  stats: { health: 0, strength: 0, qi: 0, speed: 0 },
+  realmIndex: 0,
+  realmLevel: 1,
+  qi: 0,
+  qiRequired: 100,
+  cultivating: false,
+  goldenCoreTier: 0,
+  lifespan: 85
 };
 
-// Assign a random Chinese name
-function assignRandomName() {
-  const randomIndex = Math.floor(Math.random() * chineseNames.length);
-  player.name = chineseNames[randomIndex];
-  document.getElementById("player-name").innerText = player.name;
-}
+// --- Initialization ---
+function initializePlayer() {
+  // Randomize name
+  player.name = chineseNames[Math.floor(Math.random() * chineseNames.length)];
 
-// Roll talent and physique
-function rollAttributes() {
+  // Assign talent (1-100)
   player.talent = Math.floor(Math.random() * 100) + 1;
-  const physiques = ["Heavenly", "Earthly", "Mortal", "Demonic", "Divine"];
-  player.physique = physiques[Math.floor(Math.random() * physiques.length)];
-}
 
-// Start game
-function startGame() {
-  updateUI();
-  setInterval(() => {
-    player.age += 1;
-    document.getElementById("age").innerText = player.age;
-  }, 30000); // Age increases every 30 seconds
+  // Assign physique
+  player.physique = getRandomPhysique();
 
-  setInterval(() => {
-    if (player.cultivating) {
-      const regen = 1 * player.qiRegenMultiplier;
-      player.qi = Math.min(player.qi + regen, player.maxQi);
-      updateQiBar();
-    }
-  }, 500); // Qi regenerates every 0.5 seconds
-}
+  // Calculate initial stats
+  calculateStats();
 
-// Update UI
-function updateUI() {
-  document.getElementById("player-name").innerText = player.name;
-  document.getElementById("age").innerText = player.age;
-  document.getElementById("talent").innerText = player.talent;
-  document.getElementById("physique").innerText = player.physique;
-  document.getElementById("realm").innerText = realmStages[player.realmStage];
-  document.getElementById("health").innerText = player.stats.health;
-  document.getElementById("strength").innerText = player.stats.strength;
-  document.getElementById("qi").innerText = Math.floor(player.qi);
-  document.getElementById("speed").innerText = player.stats.speed;
-  document.getElementById("lifespan").innerText = player.lifespan;
-  updateQiBar();
-}
-
-// Update Qi bar
-function updateQiBar() {
-  const qiPercentage = (player.qi / player.maxQi) * 100;
-  const qiBar = document.getElementById("xp-bar");
-  qiBar.style.width = `${qiPercentage}%`;
-  qiBar.innerText = `${Math.floor(qiPercentage)}%`;
-}
-
-// Toggle cultivation
-function toggleCultivation() {
-  player.cultivating = !player.cultivating;
-  document.getElementById("cultivate-btn").innerText = player.cultivating ? "Stop Cultivating" : "Start Cultivating";
-}
-
-// Breakthrough
-function breakthrough() {
-  const currentStage = player.realmStage;
-  const realmName = realmStages[currentStage];
-
-  if (realmName.includes("Core Formation 10") || realmName.includes("Half Immortal 10")) {
-    triggerThunderTribulation(() => {
-      advanceRealm();
-    });
-  } else {
-    advanceRealm();
-  }
-}
-
-// Advance realm
-function advanceRealm() {
-  player.realmStage += 1;
-  player.qi = 0;
-  player.maxQi += 100;
-  applyGoldenCoreBoost();
+  // Update UI
   updateUI();
 }
 
-// Thunder Tribulation
-function triggerThunderTribulation(onSuccess) {
-  const modal = document.getElementById("modal");
-  modal.innerHTML = `
-    <div class="modal-content">
-      <p><strong>🌩️ Thunder Tribulation!</strong><br>
-      Resist the divine lightning for 5 seconds to ascend.</p>
-    </div>`;
-  modal.classList.remove("hidden");
-
-  setTimeout(() => {
-    modal.innerHTML = `<div class="modal-content"><p>You survived the Thunder Tribulation!</p><button onclick="closeModal()">OK</button></div>`;
-    onSuccess();
-  }, 5000);
-}
-
-// Close modal
-function closeModal() {
-  document.getElementById("modal").classList.add("hidden");
-}
-
-// Golden Core Boost
-function getGoldenCoreBoost(level) {
-  return {
-    qi: 1 + level * 0.05,
-    stats: 1 + level * 0.04
-  };
-}
-
-function applyGoldenCoreBoost() {
-  const realm = realmStages[player.realmStage];
-  if (realm.includes("Golden Core")) {
-    const level = parseInt(realm.split(" ").pop()) || 1;
-    const boost = getGoldenCoreBoost(level);
-
-    // Apply stat multipliers
-    for (let key in player.stats) {
-      player.stats[key] = Math.floor(player.stats[key] * boost.stats);
-    }
-
-    // Store Qi regen multiplier
-    player.qiRegenMultiplier = boost.qi;
-  }
-}
+// --- Weighted Random Physique Selection ---
+function getRandomPhysique() {
+  const totalWeight = physiquePool.reduce((sum, p) => sum + p.weight, 0);
+  let rand = Math
+::contentReference[oaicite:13]{index=13}
+ 
