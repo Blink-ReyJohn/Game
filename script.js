@@ -152,7 +152,7 @@ function toggleCultivation(){
     cultivationInterval = setInterval(() => {
       player.qi = Math.min(player.qiRequired, player.qi + player.stats.qi);
       updateUI();
-    }, 30000);
+    }, 2000);
   } else {
     player.cultivating = false;
     btn.textContent    = 'Start Cultivating';
