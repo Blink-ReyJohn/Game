@@ -1,6 +1,8 @@
 // Player data
 const player = {
-  name: "Unnamed Cultivator",
+  firstName: '',
+  surname: '',
+  name: 'Unnamed',
   age: 13,
   realmStage: 0,
   qi: 0,
@@ -8,9 +10,15 @@ const player = {
   stats: {
     strength: 10,
     agility: 10,
-    intelligence: 10
+    intelligence: 10,
+    health: 100,
+    speed: 10
   },
-  qiRegenMultiplier: 1
+  qiRegenMultiplier: 1,
+  talent: 0,
+  physique: 'Unknown',
+  lifespan: 85,
+  cultivating: false
 };
 
 // Realm stages
@@ -74,6 +82,8 @@ function submitName() {
   const last = document.getElementById("surname-dropdown").value;
   if (!first || !last) return;
 
+  player.firstName = first;
+  player.surname = last;
   player.name = `${last} ${first}`;
   document.getElementById("player-name").innerText = player.name;
 
@@ -86,9 +96,18 @@ function submitName() {
   const button = document.querySelector("#modal .modal-content button");
   button.innerText = "Roll";
   button.onclick = () => {
+    rollAttributes();
     document.getElementById("modal").classList.add("hidden");
     startGame();
   };
+}
+
+// Roll talent and physique
+function rollAttributes() {
+  player.talent = Math.floor(Math.random() * 100) + 1;
+  const physiques = ["Heavenly", "Earthly", "Mortal", "Demonic", "Divine"];
+  player.physique = physiques[Math.floor(Math.random() * physiques.length)];
+  updateUI();
 }
 
 // Start game
@@ -96,54 +115,60 @@ function startGame() {
   updateUI();
   setInterval(() => {
     player.age += 1;
-    document.getElementById("player-age").innerText = player.age;
+    document.getElementById("age").innerText = player.age;
   }, 30000); // Age increases every 30 seconds
 
   setInterval(() => {
-    const regen = 1 * player.qiRegenMultiplier;
-    player.qi = Math.min(player.qi + regen, player.maxQi);
-    updateUI();
+    if (player.cultivating) {
+      const regen = 1 * player.qiRegenMultiplier;
+      player.qi = Math.min(player.qi + regen, player.maxQi);
+      updateUI();
+    }
   }, 500); // Qi regenerates every 0.5 seconds
 }
 
 // Update UI
 function updateUI() {
-  document.getElementById("player-age").innerText = player.age;
-  document.getElementById("player-realm").innerText = realmStages[player.realmStage];
-  document.getElementById("player-qi").innerText = Math.floor(player.qi);
-  document.getElementById("player-max-qi").innerText = player.maxQi;
-  document.getElementById("stat-strength").innerText = player.stats.strength;
-  document.getElementById("stat-agility").innerText = player.stats.agility;
-  document.getElementById("stat-intelligence").innerText = player.stats.intelligence;
+  document.getElementById("player-name").innerText = player.name;
+  document.getElementById("age").innerText = player.age;
+  document.getElementById("talent").innerText = player.talent;
+  document.getElementById("physique").innerText = player.physique;
+  document.getElementById("realm").innerText = realmStages[player.realmStage];
+  document.getElementById("health").innerText = player.stats.health;
+  document.getElementById("strength").innerText = player.stats.strength;
+  document.getElementById("qi").innerText = Math.floor(player.qi);
+  document.getElementById("speed").innerText = player.stats.speed;
+  document.getElementById("lifespan").innerText = player.lifespan;
+}
 
-  applyGoldenCoreBoost();
+// Toggle cultivation
+function toggleCultivation() {
+  player.cultivating = !player.cultivating;
+  document.getElementById("cultivate-btn").innerText = player.cultivating ? "Stop Cultivating" : "Start Cultivating";
 }
 
 // Breakthrough
-document.getElementById("breakthrough").addEventListener("click", () => {
+function breakthrough() {
   const currentStage = player.realmStage;
   const realmName = realmStages[currentStage];
 
   if (realmName.includes("Core Formation 10") || realmName.includes("Half Immortal 10")) {
     triggerThunderTribulation(() => {
-      player.realmStage += 1;
-      player.qi = 0;
-      player.maxQi += 100;
-      updateUI();
+      advanceRealm();
     });
   } else {
-    player.realmStage += 1;
-    player.qi = 0;
-    player.maxQi += 100;
-    updateUI();
+    advanceRealm();
   }
-});
+}
 
-// Start cultivation
-document.getElementById("start-cultivation").addEventListener("click", () => {
-  // Cultivation starts automatically with Qi regeneration
-  alert("Cultivation has begun!");
-});
+// Advance realm
+function advanceRealm() {
+  player.realmStage += 1;
+  player.qi = 0;
+  player.maxQi += 100;
+  applyGoldenCoreBoost();
+  updateUI();
+}
 
 // Thunder Tribulation
 function triggerThunderTribulation(onSuccess) {
@@ -174,6 +199,18 @@ function getGoldenCoreBoost(level) {
   };
 }
 
-function applyGoldenCoreBoost
-::contentReference[oaicite:1]{index=1}
- 
+function applyGoldenCoreBoost() {
+  const realm = realmStages[player.realmStage];
+  if (realm.includes("Golden Core")) {
+    const level = parseInt(realm.split(" ").pop()) || 1;
+    const boost = getGoldenCoreBoost(level);
+
+    // Apply stat multipliers
+    for (let key in player.stats) {
+      player.stats[key] = Math.floor(player.stats[key] * boost.stats);
+    }
+
+    // Store Qi regen multiplier
+    player.qiRegenMultiplier = boost.qi;
+  }
+}
