@@ -84,10 +84,9 @@ function initializePlayer() {
   updateUI();
 }
 
-// ── Weighted Random Physique ──
 function getRandomPhysique() {
   const total = physiquePool.reduce((sum, p) => sum + p.weight, 0);
-  let pick = Math.random() \* total;
+  let pick = Math.random() * total;
   for (const p of physiquePool) {
     if (pick < p.weight) return p;
     pick -= p.weight;
