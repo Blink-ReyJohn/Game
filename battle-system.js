@@ -23,9 +23,20 @@ const rarityModifiers = {
 };
 
 function toggleBattle() {
-  document.getElementById("center-content").classList.add("hidden");
-  document.getElementById("inventory-panel").classList.add("hidden");
-  document.getElementById("battle-panel").classList.remove("hidden");
+  const map = document.getElementById("center-content");
+  const battle = document.getElementById("battle-panel");
+  const inv = document.getElementById("inventory-panel");
+
+  if (!battle || !map || !inv) return;
+
+  if (battle.classList.contains("hidden")) {
+    map.classList.add("hidden");
+    inv.classList.add("hidden");
+    battle.classList.remove("hidden");
+  } else {
+    battle.classList.add("hidden");
+    map.classList.remove("hidden");
+  }
 }
 
 function startBattle() {
