@@ -7,7 +7,9 @@ let player = {
   xp: 0,
   maxXP: 12.5,
   cultivating: false,
-  realm: "Mortal I"
+  realm: "Mortal I",
+  realmStage: 0,
+  lifespan: 85
 };
 
 let resources = {
@@ -30,7 +32,7 @@ const physiqueBoosts = {
 let ageTimer = null;
 let cultivationInterval = null;
 
-// MODAL NAME ENTRY
+// -- NAME INPUT --
 function submitName() {
   const name = document.getElementById("player-name-input").value.trim();
   if (!name) return;
@@ -41,12 +43,13 @@ function submitName() {
   const modalText = document.getElementById("modal-text");
   modalText.innerHTML = "Rolling Talent and Physique...";
   document.getElementById("player-name-input").remove();
+
   const button = document.querySelector("#modal .modal-content button");
   button.innerText = "Roll";
   button.onclick = rollStats;
 }
 
-// ROLL TALENT AND PHYSIQUE WITH ANIMATION
+// -- ROLL TALENT & PHYSIQUE WITH ANIMATION --
 function rollStats() {
   const modal = document.getElementById("modal");
   const modalText = document.getElementById("modal-text");
@@ -62,9 +65,7 @@ function rollStats() {
     if (rollCount >= 20) {
       clearInterval(interval);
 
-      // Finalize values
       player.talent = Math.floor(Math.random() * 10) + 1;
-
       const roll = Math.random();
       if (roll < 0.2) player.physique = "Fragile";
       else if (roll < 0.6) player.physique = "Normal";
@@ -89,7 +90,7 @@ function rollStats() {
   }, 100);
 }
 
-// AUTO AGE TIMER
+// -- AGE TIMER --
 function startAgeTimer() {
   ageTimer = setInterval(() => {
     player.age++;
@@ -97,16 +98,20 @@ function startAgeTimer() {
   }, 30000);
 }
 
-// TOGGLE CULTIVATION
+// -- CULTIVATION LOGIC --
 function toggleCultivation() {
   player.cultivating = !player.cultivating;
   document.getElementById("cultivate-btn").innerText = player.cultivating ? "Stop Cultivating" : "Start Cultivating";
 
   if (player.cultivating) {
     cultivationInterval = setInterval(() => {
-      player.xp += 1 + player.talent / 10;
+      const xpGain = 1 + player.talent / 10;
+      player.xp += xpGain;
+      if (player.xp > player.maxXP) player.xp = player.maxXP;
+
       resources.spiritStones += 1;
       resources.knowledge += 0.5;
+
       updateUI();
     }, 3000);
   } else {
@@ -114,7 +119,7 @@ function toggleCultivation() {
   }
 }
 
-// BREAKTHROUGH
+// -- BREAKTHROUGH LOGIC --
 function breakthrough() {
   if (player.xp < player.maxXP) {
     showModal("Not enough experience to breakthrough.");
@@ -123,10 +128,19 @@ function breakthrough() {
 
   player.xp = 0;
   player.maxXP *= 1.4;
+
+  const newRealm = getNewRealm();
+  if (newRealm) {
+    player.realm = newRealm;
+    player.realmStage++;
+    player.lifespan += 5;
+    document.getElementById("realm").innerText = player.realm;
+    showModal(`Breakthrough successful! You've reached <strong>${player.realm}</strong> and extended your lifespan.`);
+  } else {
+    showModal("You have reached the peak realm.");
+  }
+
   resources.spiritStones += 10;
-  player.realm = getNewRealm();
-  document.getElementById("realm").innerText = player.realm;
-  showModal("Breakthrough successful!");
   updateUI();
 }
 
@@ -136,17 +150,21 @@ function getNewRealm() {
     "Qi Gathering II", "Foundation Establishment", "Core Formation",
     "Nascent Soul", "Soul Transformation", "Immortal Ascension"
   ];
-  const currentIndex = realms.indexOf(player.realm);
-  return realms[currentIndex + 1] || player.realm;
+
+  if (player.realmStage < realms.length - 1) {
+    return realms[player.realmStage + 1];
+  } else {
+    return null;
+  }
 }
 
-// SELECT REGION
+// -- REGION SELECTION --
 function selectRegion(regionName) {
   showModal(`You entered the region: ${regionName}`);
   document.querySelector(".world-map").style.filter = "brightness(1.1)";
 }
 
-// UI & MODAL HELPERS
+// -- MODAL HELPERS --
 function showModal(message) {
   const modal = document.getElementById("modal");
   modal.classList.remove("hidden");
@@ -157,6 +175,7 @@ function closeModal() {
   document.getElementById("modal").classList.add("hidden");
 }
 
+// -- UI UPDATER --
 function updateUI() {
   document.getElementById("player-name").innerText = player.name;
   document.getElementById("age").innerText = `${player.age}`;
@@ -176,8 +195,12 @@ function updateUI() {
   document.getElementById("spirit-stones").innerText = Math.floor(resources.spiritStones);
   document.getElementById("immortal-stones").innerText = Math.floor(resources.immortalStones);
   document.getElementById("life-essence").innerText = Math.floor(resources.lifeEssence);
+
+  const lifespanDisplay = document.querySelector(".panel.left p:nth-of-type(6)");
+  if (lifespanDisplay) lifespanDisplay.innerText = `Expected Lifespan: ${player.lifespan} years`;
 }
 
+// -- INIT --
 window.onload = () => {
   document.getElementById("modal").classList.remove("hidden");
 };
