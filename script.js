@@ -1,6 +1,5 @@
-// script.js (Full Version with Working Modal + Saving)
+// script.js (Player setup + UI)
 
-// CONFIG
 const BASE_LIFESPAN = 85;
 const BASE_QI_REQUIREMENT = 100;
 const QI_SCALE = 1.35;
@@ -36,7 +35,6 @@ let player = {
   inventory: []
 };
 
-
 let cultivationInterval = null;
 
 function getRandomPhysique() {
@@ -62,12 +60,13 @@ function updateUI() {
   document.getElementById("qi").textContent = player.stats.qi;
   document.getElementById("speed").textContent = player.stats.speed;
   document.getElementById("realm").textContent = subRealms[player.subRealmIndex].name;
-  const pct = Math.min(100, (player.qi / player.qiRequired) * 100);
-  document.getElementById("xp-bar").style.width = pct + "%";
-  document.getElementById("xp-bar").title = `${player.qi} / ${player.qiRequired} Qi`;
   document.getElementById("lifespan").textContent = player.lifespan;
   document.getElementById("gold").textContent = player.gold;
   document.getElementById("spirit-stones").textContent = player.spiritStones;
+
+  const pct = Math.min(100, (player.qi / player.qiRequired) * 100);
+  document.getElementById("xp-bar").style.width = pct + "%";
+  document.getElementById("xp-bar").title = `${player.qi} / ${player.qiRequired} Qi`;
 }
 
 function toggleCultivation() {
@@ -112,43 +111,26 @@ function breakthrough() {
   savePlayerData();
 }
 
-function selectRegion(name) {
-  alert(`You travel to ${name}. (Event logic goes here!)`);
-}
-
-function showInitModal() {
-  document.getElementById("modal-name").textContent = player.name;
-  document.getElementById("modal-talent").textContent = player.talent;
-  document.getElementById("modal-physique").textContent = player.physique.name;
-  document.getElementById("init-modal").classList.remove("hidden");
-}
-
-function initializePlayer() {
-  player.name = chineseNames[Math.floor(Math.random() * chineseNames.length)];
-  player.talent = Math.floor(Math.random() * 100) + 1;
-  player.physique = getRandomPhysique();
-  player.subRealmIndex = 0;
-  player.qi = 0;
-  player.qiRequired = subRealms[0].qiRequired;
-  player.lifespan = BASE_LIFESPAN;
-  player.statMultiplier = 1;
-  calculateStats();
-  showInitModal();
-  updateUI();
+function hideAllPanels() {
+  document.getElementById("center-content")?.classList.add("hidden");
+  document.getElementById("inventory-panel")?.classList.add("hidden");
+  document.getElementById("battle-panel")?.classList.add("hidden");
 }
 
 function toggleInventory() {
-  const map = document.getElementById("center-content");
-  const inv = document.getElementById("inventory-panel");
-  if (!map || !inv) return;
-  if (inv.classList.contains("hidden")) {
-    map.classList.add("hidden");
-    inv.classList.remove("hidden");
-    loadInventory();
-  } else {
-    map.classList.remove("hidden");
-    inv.classList.add("hidden");
-  }
+  const panel = document.getElementById("inventory-panel");
+  const isHidden = panel.classList.contains("hidden");
+  hideAllPanels();
+  if (isHidden) panel.classList.remove("hidden");
+  else document.getElementById("center-content").classList.remove("hidden");
+}
+
+function toggleBattle() {
+  const panel = document.getElementById("battle-panel");
+  const isHidden = panel.classList.contains("hidden");
+  hideAllPanels();
+  if (isHidden) panel.classList.remove("hidden");
+  else document.getElementById("center-content").classList.remove("hidden");
 }
 
 function loadInventory() {
@@ -182,13 +164,13 @@ function loadPlayerData() {
   const saved = localStorage.getItem("cultivationGameSave");
   if (saved) {
     player = JSON.parse(saved);
+    player.gold = player.gold ?? 0;
+    player.spiritStones = player.spiritStones ?? 0;
+    player.inventory = player.inventory ?? [];
     const realmIndex = player.subRealmIndex ?? 0;
     player.qiRequired = subRealms[realmIndex]?.qiRequired ?? 100;
     const major = Math.floor(realmIndex / 10);
     const minor = realmIndex % 10;
-    player.gold = player.gold ?? 0;
-    player.spiritStones = player.spiritStones ?? 0;
-    player.inventory = player.inventory ?? [];
     player.statMultiplier = 1;
     player.lifespan = BASE_LIFESPAN;
     for (let i = 0; i < major; i++) player.statMultiplier *= 1.1, player.lifespan += LIFE_GAINS[i];
