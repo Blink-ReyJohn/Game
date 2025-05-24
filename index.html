@@ -8,74 +8,67 @@
 </head>
 <body>
 
-  <!-- INITIALIZATION MODAL -->
-  <div class="modal" id="init-modal">
-    <div class="modal-content">
-      <h3>Character Creation</h3>
-      <p>Name: <strong><span id="modal-name"></span></strong></p>
-      <p>Talent: <strong><span id="modal-talent"></span></strong></p>
-      <p>Physique: <strong><span id="modal-physique"></span></strong></p>
-      <button id="modal-confirm-btn">Confirm</button>
+<!-- Game UI -->
+<div class="game-container">
+  <!-- LEFT PANEL -->
+  <div class="panel left">
+    <h2 id="player-name">Unnamed</h2>
+    <p id="player-age">Age: <span id="age">13</span></p>
+    <p><strong>Talent:</strong> <span id="talent">0</span> | <strong>Physique:</strong> <span id="physique">Unknown</span></p>
+    <div class="progress-bar"><div class="progress" id="xp-bar" style="width: 0%"></div></div>
+    <h3 id="realm">Mortal I</h3>
+    <div class="stats">
+      <p>Health: <span id="health">0</span></p>
+      <p>Strength: <span id="strength">0</span></p>
+      <p>Qi: <span id="qi">0</span></p>
+      <p>Speed: <span id="speed">0</span></p>
+    </div>
+    <p>Expected Lifespan: <span id="lifespan">85</span> years</p>
+    <button onclick="toggleCultivation()" id="cultivate-btn">Start Cultivating</button>
+    <button onclick="breakthrough()">Breakthrough</button>
+  </div>
+
+  <!-- CENTER MAP -->
+  <div class="map">
+    <h1>World Map</h1>
+    <img src="https://i.ibb.co/TqTvJbXW/WorldMap.png" alt="World Map" class="world-map">
+    <div class="region-select">
+      <button onclick="selectRegion('Volcanic Peak')">Volcanic Peak</button>
+      <button onclick="selectRegion('Forest of Great Beasts')">Forest of Great Beasts</button>
+      <button onclick="selectRegion('Clashing Elements')">Clashing Elements</button>
+      <button onclick="selectRegion('Island of Heavenly Trials')">Island of Heavenly Trials</button>
+      <button onclick="selectRegion('Land of Immortals')">Land of Immortals</button>
     </div>
   </div>
 
-  <div class="game-container">
-    <!-- LEFT PANEL -->
-    <div class="panel left">
-      <h2 id="player-name">Unnamed</h2>
-      <p>Age: <span id="age">13</span></p>
-      <p><strong>Talent:</strong> <span id="talent">0</span> | 
-         <strong>Physique:</strong> <span id="physique">Unknown</span>
-      </p>
-
-      <div class="progress-bar">
-        <div class="progress" id="xp-bar" style="width: 0%"></div>
-      </div>
-
-      <h3 id="realm">Mortal I</h3>
-
-      <div class="stats">
-        <p>Health: <span id="health">0</span></p>
-        <p>Strength: <span id="strength">0</span></p>
-        <p>Qi: <span id="qi">0</span></p>
-        <p>Speed: <span id="speed">0</span></p>
-      </div>
-
-      <p>Expected Lifespan: <span id="lifespan">85</span> years</p>
-
-      <button id="cultivate-btn" onclick="toggleCultivation()">Start Cultivating</button>
-      <button onclick="breakthrough()">Breakthrough</button>
-    </div>
-
-    <!-- CENTER MAP -->
-    <div class="map">
-      <h1>World Map</h1>
-      <div class="region-select">
-        <button onclick="selectRegion('Volcanic Peak')">Volcanic Peak</button>
-        <button onclick="selectRegion('Forest of Great Beasts')">Forest of Great Beasts</button>
-        <button onclick="selectRegion('Clashing Elements')">Clashing Elements</button>
-        <button onclick="selectRegion('Island of Heavenly Trials')">Island of Heavenly Trials</button>
-        <button onclick="selectRegion('Land of Immortals')">Land of Immortals</button>
-      </div>
-    </div>
-
-    <!-- RIGHT PANEL -->
-    <div class="panel right">
-      <p>Gold: <span id="gold">0</span></p>
-      <p>Knowledge: <span id="knowledge">0</span></p>
-      <p>Contribution: <span id="contribution">0</span></p>
-      <p>Spirit Stones: <span id="spirit-stones">0</span></p>
-      <p>Immortal Stones: <span id="immortal-stones">0</span></p>
-      <p>Life Essence: <span id="life-essence">0</span></p>
-
-      <button class="green">Leaderboard</button>
-      <button class="blue">Reincarnation Shop</button>
-      <button class="red">Reroll Life</button>
-      <button class="yellow">Gamepasses</button>
-      <button class="purple">Backgrounds</button>
-    </div>
+  <!-- RIGHT PANEL -->
+  <div class="panel right">
+    <p>Gold: <span id="gold">0</span></p>
+    <p>Knowledge: <span id="knowledge">0</span></p>
+    <p>Contribution: <span id="contribution">0</span></p>
+    <p>Spirit Stones: <span id="spirit-stones">0</span></p>
+    <p>Immortal Stones: <span id="immortal-stones">0</span></p>
+    <p>Life Essence: <span id="life-essence">0</span></p>
+    <button class="green">Leaderboard</button>
+    <button class="blue">Reincarnation Shop</button>
+    <button class="red">Reroll Life</button>
+    <button class="yellow">Gamepasses</button>
+    <button class="purple">Backgrounds</button>
   </div>
+</div>
 
-  <script src="script.js"></script>
+<!-- Character Creation Modal -->
+<div class="modal" id="init-modal">
+  <div class="modal-content">
+    <h2>Character Creation</h2>
+    <p>Name: <strong><span id="modal-name">—</span></strong></p>
+    <p>Talent: <strong><span id="modal-talent">—</span></strong></p>
+    <p>Physique: <strong><span id="modal-physique">—</span></strong></p>
+    <button id="modal-confirm-btn">Confirm</button>
+  </div>
+</div>
+
+<!-- JS -->
+<script src="script.js"></script>
 </body>
 </html>
