@@ -89,7 +89,7 @@ function toggleCultivation() {
 function breakthrough() {
   if (player.qi < player.qiRequired) {
     const modal = document.getElementById("notice-modal");
-    modal.querySelector(".modal-message").textContent = `Need ${player.qiRequired} Qi, but have ${player.qi}.`;
+    modal.querySelector(".modal-message").textContent = `Need ${player.qiRequired} Qi, but you have ${player.qi}.`;
     modal.classList.remove("hidden");
     return;
   }
