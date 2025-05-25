@@ -9,48 +9,17 @@ const LIFE_GAINS = [5,8,12,18,25,35,50,70,100,150];
 
 const chineseNames = ["Li Wei", "Zhao Hui", "Chen Jie", "Zhou Lei", "Lin Tao"];
 const physiquePool = [
-  {
-    name: "Ordinary Vessel", rarity: "Common", element: "None", weight: 30,
-    stats: { health: 1.0, strength: 1.0, qi: 1.0, speed: 1.0 }
-  },
-  {
-    name: "Iron Muscle", rarity: "Uncommon", element: "Earth", weight: 20,
-    stats: { health: 1.2, strength: 1.2, qi: 0.9, speed: 0.9 }
-  },
-  {
-    name: "Swift Wind Body", rarity: "Uncommon", element: "Wind", weight: 18,
-    stats: { health: 0.9, strength: 0.9, qi: 1.0, speed: 1.3 }
-  },
-  {
-    name: "Jade Spirit Root", rarity: "Rare", element: "Wood", weight: 10,
-    stats: { health: 1.0, strength: 0.9, qi: 1.4, speed: 1.1 }
-  },
-  {
-    name: "Flameheart Physique", rarity: "Rare", element: "Fire", weight: 10,
-    stats: { health: 1.1, strength: 1.3, qi: 1.2, speed: 1.0 }
-  },
-  {
-    name: "Thousand Vein Core", rarity: "Epic", element: "Water", weight: 6,
-    stats: { health: 1.2, strength: 1.1, qi: 1.5, speed: 1.2 }
-  },
-  {
-    name: "Voidbone Body", rarity: "Epic", element: "Dark", weight: 5,
-    stats: { health: 1.0, strength: 1.0, qi: 1.6, speed: 1.4 }
-  },
-  {
-    name: "Sacred Beast Bloodline", rarity: "Legendary", element: "Beast", weight: 3,
-    stats: { health: 1.6, strength: 1.5, qi: 1.3, speed: 1.2 }
-  },
-  {
-    name: "Celestial Star Meridian", rarity: "Legendary", element: "Light", weight: 2,
-    stats: { health: 1.3, strength: 1.3, qi: 1.8, speed: 1.4 }
-  },
-  {
-    name: "Primordial Chaos Body", rarity: "Mythical", element: "Chaos", weight: 1,
-    stats: { health: 2.0, strength: 2.0, qi: 2.0, speed: 2.0 }
-  }
+  { name: "Ordinary Vessel", rarity: "Common", element: "None", weight: 30, stats: { health: 1.0, strength: 1.0, qi: 1.0, speed: 1.0 }},
+  { name: "Iron Muscle", rarity: "Uncommon", element: "Earth", weight: 20, stats: { health: 1.2, strength: 1.2, qi: 0.9, speed: 0.9 }},
+  { name: "Swift Wind Body", rarity: "Uncommon", element: "Wind", weight: 18, stats: { health: 0.9, strength: 0.9, qi: 1.0, speed: 1.3 }},
+  { name: "Jade Spirit Root", rarity: "Rare", element: "Wood", weight: 10, stats: { health: 1.0, strength: 0.9, qi: 1.4, speed: 1.1 }},
+  { name: "Flameheart Physique", rarity: "Rare", element: "Fire", weight: 10, stats: { health: 1.1, strength: 1.3, qi: 1.2, speed: 1.0 }},
+  { name: "Thousand Vein Core", rarity: "Epic", element: "Water", weight: 6, stats: { health: 1.2, strength: 1.1, qi: 1.5, speed: 1.2 }},
+  { name: "Voidbone Body", rarity: "Epic", element: "Dark", weight: 5, stats: { health: 1.0, strength: 1.0, qi: 1.6, speed: 1.4 }},
+  { name: "Sacred Beast Bloodline", rarity: "Legendary", element: "Beast", weight: 3, stats: { health: 1.6, strength: 1.5, qi: 1.3, speed: 1.2 }},
+  { name: "Celestial Star Meridian", rarity: "Legendary", element: "Light", weight: 2, stats: { health: 1.3, strength: 1.3, qi: 1.8, speed: 1.4 }},
+  { name: "Primordial Chaos Body", rarity: "Mythical", element: "Chaos", weight: 1, stats: { health: 2.0, strength: 2.0, qi: 2.0, speed: 2.0 }}
 ];
-
 
 const majorNames = ["Qi Gathering","Foundation Building","Core Formation","Golden Core","Soul Formation","Nascent Soul","Nihility","Ascension","Half Immortal","Earth Immortal"];
 const subRealms = [];
@@ -75,6 +44,7 @@ let player = {
 };
 
 let cultivationInterval = null;
+let agingInterval = null;
 
 function getRandomPhysique() {
   const totalWeight = physiquePool.reduce((sum, p) => sum + p.weight, 0);
@@ -172,74 +142,27 @@ function breakthrough() {
   savePlayerData();
 }
 
+function startAging() {
+  if (agingInterval) clearInterval(agingInterval);
 
-function hideAllPanels() {
-  document.getElementById("center-content")?.classList.add("hidden");
-  document.getElementById("inventory-panel")?.classList.add("hidden");
-  document.getElementById("battle-panel")?.classList.add("hidden");
-}
-
-function toggleInventory() {
-  const panel = document.getElementById("inventory-panel");
-  const isHidden = panel.classList.contains("hidden");
-  hideAllPanels();
-  if (isHidden) panel.classList.remove("hidden");
-  else document.getElementById("center-content").classList.remove("hidden");
-}
-
-function toggleBattle() {
-  const panel = document.getElementById("battle-panel");
-  const isHidden = panel.classList.contains("hidden");
-  hideAllPanels();
-  if (isHidden) panel.classList.remove("hidden");
-  else document.getElementById("center-content").classList.remove("hidden");
-}
-
-function loadInventory() {
-  const grid = document.getElementById("inventory-grid");
-  if (!grid) return;
-
-  grid.innerHTML = "";
-
-  player.inventory.forEach((item) => {
-    const cell = document.createElement("div");
-    cell.textContent = item.name;
-    cell.className = "inventory-item";
-    cell.onclick = () => showItemInfo(item);
-    grid.appendChild(cell);
-  });
-}
-
-function showItemInfo(item) {
-  document.getElementById("item-name").textContent = item.name;
-  document.getElementById("item-description").textContent = item.desc;
-  document.getElementById("use-button").style.display = item.type === "consumable" ? "inline-block" : "none";
-  document.getElementById("equip-button").style.display = item.type === "item" ? "inline-block" : "none";
-}
-
-function savePlayerData() {
-  const data = JSON.stringify(player);
-  localStorage.setItem("cultivationGameSave", data);
-}
-
-function loadPlayerData() {
-  const saved = localStorage.getItem("cultivationGameSave");
-  if (saved) {
-    player = JSON.parse(saved);
-    player.gold = player.gold ?? 0;
-    player.spiritStones = player.spiritStones ?? 0;
-    player.inventory = player.inventory ?? [];
-    const realmIndex = player.subRealmIndex ?? 0;
-    player.qiRequired = subRealms[realmIndex]?.qiRequired ?? 100;
-    const major = Math.floor(realmIndex / 10);
-    const minor = realmIndex % 10;
-    player.statMultiplier = 1;
-    player.lifespan = BASE_LIFESPAN;
-    for (let i = 0; i < major; i++) player.statMultiplier *= 1.1, player.lifespan += LIFE_GAINS[i];
-    for (let i = 0; i < minor; i++) player.statMultiplier *= 1 + (0.1 * 0.7), player.lifespan += LIFE_GAINS[major] * 0.5;
-    calculateStats();
+  agingInterval = setInterval(() => {
+    player.age++;
+    if (player.age > player.lifespan) {
+      clearInterval(agingInterval);
+      clearInterval(cultivationInterval);
+      showGameOver();
+      return;
+    }
     updateUI();
-  }
+    savePlayerData();
+  }, 30000);
+}
+
+function showGameOver() {
+  const modal = document.getElementById("notice-modal");
+  modal.querySelector(".modal-message").textContent = "☠️ You passed away from old age. Game Over.";
+  modal.classList.remove("hidden");
+  document.getElementById("cultivate-btn").disabled = true;
 }
 
 function rerollLife() {
@@ -264,8 +187,8 @@ function rerollLife() {
   calculateStats();
   updateUI();
   savePlayerData();
+  startAging();
 
-  // Reset button UI
   const cultivateBtn = document.getElementById("cultivate-btn");
   if (cultivateBtn) cultivateBtn.textContent = "Start Cultivating";
 
@@ -278,12 +201,14 @@ function rerollLife() {
 window.onload = () => {
   setInterval(savePlayerData, 10 * 60 * 1000);
   loadPlayerData();
+  startAging();
   if (!player.name) {
     initializePlayer();
     showInitModal();
   } else {
     updateUI();
   }
+
   document.getElementById("modal-confirm-btn").addEventListener("click", () => {
     document.getElementById("init-modal").classList.add("hidden");
     savePlayerData();
