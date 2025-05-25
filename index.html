@@ -130,5 +130,15 @@
     <button onclick="document.getElementById('notice-modal').classList.add('hidden')">Close</button>
   </div>
 </div>
+
+<div class="modal hidden" id="reroll-modal">
+  <div class="modal-content">
+    <p>⚠️ This will reset your entire life. Proceed?</p>
+    <div style="margin-top: 15px;">
+      <button class="red" onclick="confirmReroll(true)">Yes, Reroll</button>
+      <button class="purple" onclick="confirmReroll(false)">Cancel</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
