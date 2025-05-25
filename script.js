@@ -242,12 +242,37 @@ function loadPlayerData() {
   }
 }
 
-function resetGame() {
-  const confirmReset = confirm("Are you sure you want to reset your character and start over?");
-  if (confirmReset) {
-    localStorage.removeItem("cultivationGameSave");
-    location.reload();
-  }
+function rerollLife() {
+  const confirmReroll = confirm("This will reset your entire life — name, talent, physique, stats, realm, inventory, and more. Proceed?");
+  if (!confirmReroll) return;
+
+  player.name = chineseNames[Math.floor(Math.random() * chineseNames.length)];
+  player.talent = Math.floor(Math.random() * 100) + 1;
+  player.physique = getRandomPhysique();
+
+  player.age = 13;
+  player.subRealmIndex = 0;
+  player.qiRequired = BASE_QI_REQUIREMENT;
+  player.qi = 0;
+  player.lifespan = BASE_LIFESPAN;
+  player.statMultiplier = 1;
+  player.gold = 0;
+  player.spiritStones = 0;
+  player.inventory = [];
+  player.cultivating = false;
+
+  calculateStats();
+  updateUI();
+  savePlayerData();
+
+  // Reset button UI
+  const cultivateBtn = document.getElementById("cultivate-btn");
+  if (cultivateBtn) cultivateBtn.textContent = "Start Cultivating";
+
+  const modal = document.getElementById("notice-modal");
+  modal.querySelector(".modal-message").textContent =
+    `🌅 You were reborn as ${player.name} with ${player.talent} talent and the physique "${player.physique.name}".`;
+  modal.classList.remove("hidden");
 }
 
 window.onload = () => {
