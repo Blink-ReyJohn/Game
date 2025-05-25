@@ -120,6 +120,7 @@ function startAging() {
 function showGameOver() {
   const modal = document.getElementById("notice-modal");
   modal.querySelector(".modal-message").textContent = "☠️ You passed away from old age. Game Over.";
+  modal.dataset.type = "death"; // ➕ add this marker
   modal.classList.remove("hidden");
   document.getElementById("cultivate-btn").disabled = true;
 }
@@ -231,6 +232,16 @@ function initializePlayer() {
   calculateStats();
   updateUI();
   savePlayerData();
+}
+
+function closeNoticeModal() {
+  const modal = document.getElementById("notice-modal");
+  modal.classList.add("hidden");
+
+  if (modal.dataset.type === "death") {
+    localStorage.removeItem("cultivationGameSave");
+    location.reload();
+  }
 }
 
 window.onload = () => {
