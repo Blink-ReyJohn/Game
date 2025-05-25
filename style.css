@@ -5,6 +5,7 @@ body {
   color: #f0f0f0;
   margin: 0;
   padding: 0;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -18,11 +19,11 @@ h1, h2, h3, p {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding: 20px;
   height: 100vh;
+  width: 100%;
   box-sizing: border-box;
+  overflow: hidden; /* Prevent extra scrollbars */
 }
-
 /* === Panels === */
 .panel {
   width: 25%;
@@ -33,14 +34,14 @@ h1, h2, h3, p {
   overflow-y: auto;
 }
 
-.panel.left {
-  margin-right: 10px;
-  border-right: 2px solid #333;
-}
-
+.panel.left,
 .panel.right {
-  margin-left: 10px;
-  border-left: 2px solid #333;
+  height: 100vh; /* Full vertical height */
+  overflow-y: auto; /* Enable scroll if needed */
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 /* === Map & Inventory Section === */
