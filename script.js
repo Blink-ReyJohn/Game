@@ -62,7 +62,17 @@ function calculateStats() {
 function updateUI() {
   document.getElementById("player-name").textContent = player.name || "Unnamed";
   document.getElementById("age").textContent = player.age;
-  document.getElementById("talent").textContent = player.talent;
+
+  const talentEl = document.getElementById("talent");
+  talentEl.textContent = player.talent;
+  talentEl.className = "tooltip";
+  talentEl.setAttribute("data-tooltip", "Affects all base stats");
+
+  const realmEl = document.getElementById("realm");
+  const realm = subRealms[player.subRealmIndex];
+  realmEl.textContent = realm.name;
+  realmEl.className = "tooltip";
+  realmEl.setAttribute("data-tooltip", `Qi Needed: ${realm.qiRequired}`);
 
   const physEl = document.getElementById("physique");
   if (player.physique) {
@@ -79,7 +89,6 @@ function updateUI() {
   document.getElementById("strength").textContent = player.stats.strength;
   document.getElementById("qi").textContent = player.stats.qi;
   document.getElementById("speed").textContent = player.stats.speed;
-  document.getElementById("realm").textContent = subRealms[player.subRealmIndex].name;
   document.getElementById("lifespan").textContent = player.lifespan;
   document.getElementById("gold").textContent = player.gold;
   document.getElementById("spirit-stones").textContent = player.spiritStones;
@@ -88,6 +97,7 @@ function updateUI() {
   document.getElementById("xp-bar").style.width = pct + "%";
   document.getElementById("xp-bar").title = `${player.qi} / ${player.qiRequired} Qi`;
 }
+
 
 function startAging() {
   if (agingInterval) clearInterval(agingInterval);
@@ -158,7 +168,12 @@ function breakthrough() {
 }
 
 function rerollLife() {
-  if (!confirm("This will reset your entire life. Proceed?")) return;
+  document.getElementById("reroll-modal").classList.remove("hidden");
+}
+
+function confirmReroll(yes) {
+  document.getElementById("reroll-modal").classList.add("hidden");
+  if (!yes) return;
 
   player.name = chineseNames[Math.floor(Math.random() * chineseNames.length)];
   player.talent = Math.floor(Math.random() * 100) + 1;
@@ -185,9 +200,6 @@ function rerollLife() {
   modal.classList.remove("hidden");
 }
 
-function savePlayerData() {
-  localStorage.setItem("cultivationGameSave", JSON.stringify(player));
-}
 
 function loadPlayerData() {
   const saved = localStorage.getItem("cultivationGameSave");
