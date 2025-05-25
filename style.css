@@ -127,7 +127,7 @@ button:disabled {
   height: 20px;
   background-color: #27ae60;
   width: 0%;
-  transition: width 0.3s ease;
+  transition: width 0.5s ease-in-out; /* ⬅️ Smooth animation */
   text-align: center;
   font-size: 13px;
   font-weight: bold;
