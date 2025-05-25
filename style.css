@@ -129,9 +129,12 @@ button:disabled {
   width: 0%;
   transition: width 0.3s ease;
   text-align: center;
-  font-size: 12px;
-  color: black;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+  line-height: 20px;
 }
+
 
 /* === Modal === */
 .modal {
