@@ -186,43 +186,127 @@ button:disabled {
   border-color: #fff;
 }
 
+/* === Tooltip & Rarity Display === */
+.tooltip {
+  position: relative;
+  cursor: help;
+  display: inline-block;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #111;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  font-size: 13px;
+  border: 1px solid #444;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 20;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+}
+
+.tooltip::before {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #111;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 19;
+}
+
+.tooltip:hover::before {
+  opacity: 1;
+}
+
+.rarity-Common {
+  color: gray;
+  background-color: rgba(128, 128, 128, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.rarity-Uncommon {
+  color: #2ecc71;
+  background-color: rgba(46, 204, 113, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.rarity-Rare {
+  color: #3498db;
+  background-color: rgba(52, 152, 219, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.rarity-Epic {
+  color: #9b59b6;
+  background-color: rgba(155, 89, 182, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.rarity-Legendary {
+  color: gold;
+  background-color: rgba(255, 215, 0, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.rarity-Mythical {
+  color: crimson;
+  background-color: rgba(220, 20, 60, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 /* === Helpers === */
 .hidden {
   display: none;
 }
 
 #battle-log p {
-    margin: 5px 0;
-    transition: all 0.3s ease;
-  }
+  margin: 5px 0;
+  transition: all 0.3s ease;
+}
 
-  .battle-hit {
-    color: #f66;
-    font-weight: bold;
-  }
+.battle-hit {
+  color: #f66;
+  font-weight: bold;
+}
 
-  .battle-heal {
-    color: #6f6;
-  }
+.battle-heal {
+  color: #6f6;
+}
 
-  .battle-drop {
-    color: #ffd700;
-    font-weight: bold;
-  }
+.battle-drop {
+  color: #ffd700;
+  font-weight: bold;
+}
 
-  .enemy-pic {
-    max-height: 120px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(255,255,255,0.2);
-    transition: transform 0.3s ease;
-    animation: pulse 1.5s infinite;
-  }
+.enemy-pic {
+  max-height: 120px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255,255,255,0.2);
+  transition: transform 0.3s ease;
+  animation: pulse 1.5s infinite;
+}
 
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
 
 .hp-bar {
   width: 100%;
@@ -256,4 +340,3 @@ button:disabled {
   0% { opacity: 1; transform: translateY(0); }
   100% { opacity: 0; transform: translateY(-30px); }
 }
-
