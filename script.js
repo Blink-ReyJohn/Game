@@ -9,9 +9,48 @@ const LIFE_GAINS = [5,8,12,18,25,35,50,70,100,150];
 
 const chineseNames = ["Li Wei", "Zhao Hui", "Chen Jie", "Zhou Lei", "Lin Tao"];
 const physiquePool = [
-  { name: "Ordinary Vessel", stats: { health: 1, strength: 1, qi: 1, speed: 1 }, weight: 1 },
-  { name: "Iron Muscle", stats: { health: 1.2, strength: 1.2, qi: 0.9, speed: 0.9 }, weight: 1 }
+  {
+    name: "Ordinary Vessel", rarity: "Common", element: "None", weight: 30,
+    stats: { health: 1.0, strength: 1.0, qi: 1.0, speed: 1.0 }
+  },
+  {
+    name: "Iron Muscle", rarity: "Uncommon", element: "Earth", weight: 20,
+    stats: { health: 1.2, strength: 1.2, qi: 0.9, speed: 0.9 }
+  },
+  {
+    name: "Swift Wind Body", rarity: "Uncommon", element: "Wind", weight: 18,
+    stats: { health: 0.9, strength: 0.9, qi: 1.0, speed: 1.3 }
+  },
+  {
+    name: "Jade Spirit Root", rarity: "Rare", element: "Wood", weight: 10,
+    stats: { health: 1.0, strength: 0.9, qi: 1.4, speed: 1.1 }
+  },
+  {
+    name: "Flameheart Physique", rarity: "Rare", element: "Fire", weight: 10,
+    stats: { health: 1.1, strength: 1.3, qi: 1.2, speed: 1.0 }
+  },
+  {
+    name: "Thousand Vein Core", rarity: "Epic", element: "Water", weight: 6,
+    stats: { health: 1.2, strength: 1.1, qi: 1.5, speed: 1.2 }
+  },
+  {
+    name: "Voidbone Body", rarity: "Epic", element: "Dark", weight: 5,
+    stats: { health: 1.0, strength: 1.0, qi: 1.6, speed: 1.4 }
+  },
+  {
+    name: "Sacred Beast Bloodline", rarity: "Legendary", element: "Beast", weight: 3,
+    stats: { health: 1.6, strength: 1.5, qi: 1.3, speed: 1.2 }
+  },
+  {
+    name: "Celestial Star Meridian", rarity: "Legendary", element: "Light", weight: 2,
+    stats: { health: 1.3, strength: 1.3, qi: 1.8, speed: 1.4 }
+  },
+  {
+    name: "Primordial Chaos Body", rarity: "Mythical", element: "Chaos", weight: 1,
+    stats: { health: 2.0, strength: 2.0, qi: 2.0, speed: 2.0 }
+  }
 ];
+
 
 const majorNames = ["Qi Gathering","Foundation Building","Core Formation","Golden Core","Soul Formation","Nascent Soul","Nihility","Ascension","Half Immortal","Earth Immortal"];
 const subRealms = [];
@@ -38,7 +77,12 @@ let player = {
 let cultivationInterval = null;
 
 function getRandomPhysique() {
-  return physiquePool[Math.floor(Math.random() * physiquePool.length)];
+  const totalWeight = physiquePool.reduce((sum, p) => sum + p.weight, 0);
+  let rand = Math.random() * totalWeight;
+  for (const p of physiquePool) {
+    if (rand < p.weight) return p;
+    rand -= p.weight;
+  }
 }
 
 function calculateStats() {
@@ -54,7 +98,13 @@ function updateUI() {
   document.getElementById("player-name").textContent = player.name;
   document.getElementById("age").textContent = player.age;
   document.getElementById("talent").textContent = player.talent;
-  document.getElementById("physique").textContent = player.physique.name;
+
+  const phys = player.physique;
+  const physEl = document.getElementById("physique");
+  physEl.className = `tooltip rarity-${phys.rarity}`;
+  physEl.textContent = phys.name;
+  physEl.setAttribute("data-tooltip", `Rarity: ${phys.rarity} | Element: ${phys.element}`);
+
   document.getElementById("health").textContent = player.stats.health;
   document.getElementById("strength").textContent = player.stats.strength;
   document.getElementById("qi").textContent = player.stats.qi;
