@@ -95,9 +95,11 @@ function updateUI() {
 
   const pct = Math.min(100, (player.qi / player.qiRequired) * 100);
   const xpBar = document.getElementById("xp-bar");
+  const xpText = document.getElementById("xp-text");
+  const pct = Math.min(100, (player.qi / player.qiRequired) * 100);
   xpBar.style.width = pct + "%";
   xpBar.title = `${player.qi} / ${player.qiRequired} Qi`;
-  xpBar.textContent = `${player.qi} / ${player.qiRequired}`;
+  xpText.textContent = `${player.qi} / ${player.qiRequired}`;
 }
 
 
