@@ -94,8 +94,10 @@ function updateUI() {
   document.getElementById("spirit-stones").textContent = player.spiritStones;
 
   const pct = Math.min(100, (player.qi / player.qiRequired) * 100);
-  document.getElementById("xp-bar").style.width = pct + "%";
-  document.getElementById("xp-bar").title = `${player.qi} / ${player.qiRequired} Qi`;
+  const xpBar = document.getElementById("xp-bar");
+  xpBar.style.width = pct + "%";
+  xpBar.title = `${player.qi} / ${player.qiRequired} Qi`;
+  xpBar.textContent = `${player.qi} / ${player.qiRequired}`;
 }
 
 
