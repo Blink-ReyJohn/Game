@@ -331,6 +331,13 @@ button:disabled {
   border-radius: 4px;
 }
 
+.inventory-item.common { color: gray; }
+.inventory-item.uncommon { color: #2ecc71; }
+.inventory-item.rare { color: #3498db; }
+.inventory-item.epic { color: #9b59b6; }
+.inventory-item.legendary { color: gold; }
+.inventory-item.mythical { color: crimson; }
+
 /* === Helpers === */
 .hidden {
   display: none;
