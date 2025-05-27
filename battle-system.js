@@ -23,7 +23,6 @@ function startBattle() {
     />
   `;
 
-  // Ensure stats are valid
   if (!player.stats || !player.stats.health || !player.stats.strength) {
     calculateStats();
   }
@@ -38,36 +37,27 @@ function startBattle() {
   const intervalSpeed = Math.max(300, 1000 * speedFactor);
 
   currentBattleInterval = setInterval(() => {
-    // Player Turn
+    // === Player Turn ===
     const crit = Math.random() < 0.2;
     let damage = player.stats.strength;
     let dmgBoost = 0;
-    
+
     if (player.equippedBook && player.physique.element === player.equippedBook.element) {
       const book = player.equippedBook;
       dmgBoost = book.baseDmgBoost + (book.proficiencyLevel * book.dmgPerLevel);
       damage = Math.round(damage * (1 + dmgBoost));
     }
-    
+
     if (crit) damage = Math.floor(damage * 1.5);
 
     currentEnemyHP -= damage;
     appendLog(`<span class='battle-hit'>You dealt ${damage} damage${crit ? " (CRIT!)" : ""}${dmgBoost > 0 ? ` (+${Math.round(dmgBoost * 100)}% Book Boost)` : ""}</span>`);
     showFloatingText(`-${damage}`, true);
 
+    // === Victory ===
     if (currentEnemyHP <= 0) {
       clearInterval(currentBattleInterval);
       appendLog(`<strong class='battle-drop'>🎉 You defeated the ${currentEnemy.name}!</strong>`);
-      gainBattleProficiency();
-      handleBookDrop();
-      updateHPBars(0, 0, player.stats.health, currentEnemyMax);
-      updateUI();
-      savePlayerData();
-      
-      if (autoBattleEnabled) {
-        setTimeout(startBattle, 1500); // Wait 1.5s before next
-      }
-
 
       const mod = rarityModifiers[currentEnemy.rarity];
       const gold = Math.floor(Math.random() * 20 * mod.xp);
@@ -75,9 +65,11 @@ function startBattle() {
       player.gold += gold;
       player.spiritStones += stones;
       appendLog(`💰 Gained ${gold} gold and ${stones} spirit stones.`);
-      handleBookDrop?.();
 
-      let dropChance = mod.dropChance + (currentEnemy.realmDiff || 0) * 0.05;
+      handleBookDrop?.();
+      gainBattleProficiency?.();
+
+      const dropChance = mod.dropChance + (currentEnemy.realmDiff || 0) * 0.05;
       if (Math.random() < dropChance) {
         const loot = inventoryItems[Math.floor(Math.random() * inventoryItems.length)];
         player.inventory.push(loot);
@@ -87,10 +79,15 @@ function startBattle() {
       updateHPBars(0, 0, player.stats.health, currentEnemyMax);
       updateUI();
       savePlayerData();
+
+      if (autoBattleEnabled) {
+        setTimeout(startBattle, 1500);
+      }
+
       return;
     }
 
-    // Enemy Turn
+    // === Enemy Turn ===
     const enemyDamage = currentEnemy.strength;
     playerCurrentHP -= enemyDamage;
     appendLog(`<span class='battle-hit'>${currentEnemy.name} hits you for ${enemyDamage}!</span>`);
