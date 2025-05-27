@@ -39,14 +39,25 @@ function startBattle() {
   currentBattleInterval = setInterval(() => {
     // Player Turn
     const crit = Math.random() < 0.2;
-    const damage = crit ? Math.floor(player.stats.strength * 1.5) : player.stats.strength;
+    let damage = player.stats.strength;
+    let dmgBoost = 0;
+    
+    if (player.equippedBook && player.physique.element === player.equippedBook.element) {
+      const book = player.equippedBook;
+      dmgBoost = book.baseDmgBoost + (book.proficiencyLevel * book.dmgPerLevel);
+      damage = Math.round(damage * (1 + dmgBoost));
+    }
+    
+    if (crit) damage = Math.floor(damage * 1.5);
+
     currentEnemyHP -= damage;
-    appendLog(`<span class='battle-hit'>You dealt ${damage} damage${crit ? " (CRIT!)" : ""}</span>`);
+    appendLog(`<span class='battle-hit'>You dealt ${damage} damage${crit ? " (CRIT!)" : ""}${dmgBoost > 0 ? ` (+${Math.round(dmgBoost * 100)}% Book Boost)` : ""}</span>`);
     showFloatingText(`-${damage}`, true);
 
     if (currentEnemyHP <= 0) {
       clearInterval(currentBattleInterval);
       appendLog(`<strong class='battle-drop'>🎉 You defeated the ${currentEnemy.name}!</strong>`);
+      gainBattleProficiency();
 
       const mod = rarityModifiers[currentEnemy.rarity];
       const gold = Math.floor(Math.random() * 20 * mod.xp);
@@ -54,6 +65,7 @@ function startBattle() {
       player.gold += gold;
       player.spiritStones += stones;
       appendLog(`💰 Gained ${gold} gold and ${stones} spirit stones.`);
+      handleBookDrop?.();
 
       if (Math.random() < mod.dropChance) {
         const loot = inventoryItems[Math.floor(Math.random() * inventoryItems.length)];
