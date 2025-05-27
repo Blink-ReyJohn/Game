@@ -170,6 +170,12 @@ function toggleCultivation() {
   }
 }
 
+function toggleAutoBreak() {
+  autoBreakEnabled = !autoBreakEnabled;
+  const btn = document.getElementById("auto-break-btn");
+  btn.classList.toggle("active", autoBreakEnabled);
+}
+
 
 function breakthrough() {
   if (player.qi < player.qiRequired) {
