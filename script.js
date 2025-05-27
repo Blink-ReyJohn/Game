@@ -4,6 +4,7 @@ const BASE_QI_REQUIREMENT = 100;
 const QI_SCALE = 1.35;
 const MAJOR_REALM_STAT_BOOST = 1.10;
 const MINOR_REALM_STAT_BOOST = 1 + (MAJOR_REALM_STAT_BOOST - 1) * 0.7;
+let rerollPreview = null;
 
 // --- Pools ---
 const chineseNames = ["Li Wei", "Zhao Hui", "Chen Jie", "Zhou Lei", "Lin Tao"];
@@ -268,21 +269,17 @@ function rerollLife() {
   document.getElementById("modal-talent").textContent = previewTalent;
   document.getElementById("modal-physique").textContent = previewPhysique.name;
 
-  // Store these for confirmation
   rerollPreview = {
     name: previewName,
     talent: previewTalent,
     physique: previewPhysique
   };
 
-  document.getElementById("reroll-modal").classList.remove("hidden");
+  document.getElementById("init-modal").classList.remove("hidden");
 }
 
-let rerollPreview = null;
-
-function confirmReroll(yes) {
-  document.getElementById("reroll-modal").classList.add("hidden");
-  if (!yes || !rerollPreview) return;
+document.getElementById("modal-confirm-btn").addEventListener("click", () => {
+  if (!rerollPreview) return;
 
   const { name, talent, physique } = rerollPreview;
 
@@ -305,13 +302,15 @@ function confirmReroll(yes) {
   savePlayerData();
   startAging();
 
+  rerollPreview = null;
+  document.getElementById("init-modal").classList.add("hidden");
+
   const modal = document.getElementById("notice-modal");
   modal.querySelector(".modal-message").textContent =
-    `🌅 Reborn as ${player.name} with ${player.talent} talent and the physique "${player.physique.name}".`;
+    `Reborn as ${player.name} with ${player.talent} talent and the physique "${player.physique.name}".`;
   modal.classList.remove("hidden");
+});
 
-  rerollPreview = null;
-}
 
 // --- UI Control ---
 function hideAllPanels() {
