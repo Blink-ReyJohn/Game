@@ -334,18 +334,29 @@ function toggleInventory() {
 
 function filterInventory(type) {
   const grid = document.getElementById("inventory-grid");
-  if (!grid) return;
+  const wrapper = document.getElementById("inventory-scroll-wrapper");
+  const tabs = document.getElementById("inventory-tabs").children;
 
-  // Toggle off if same category is clicked again
   if (activeCategory === type) {
-    grid.classList.add("hidden");
+    // Toggle off
     grid.innerHTML = "";
+    wrapper.classList.add("hidden");
+    for (const tab of tabs) tab.style.display = "inline-block";
     activeCategory = null;
     return;
   }
 
+  // Hide others
+  for (const tab of tabs) {
+    if (!tab.id.includes(type)) {
+      tab.style.display = "none";
+    } else {
+      tab.style.display = "inline-block";
+    }
+  }
+
   activeCategory = type;
-  grid.classList.remove("hidden");
+  wrapper.classList.remove("hidden");
   grid.innerHTML = "";
 
   const headerMap = {
@@ -362,21 +373,14 @@ function filterInventory(type) {
     return (a.name || "").localeCompare(b.name || "");
   });
 
-  const tabs = ["equipment", "book", "consumable"];
+  const group = type === "all" ? ["equipment", "book", "consumable"] : [type];
 
-  if (type === "all") {
-    for (const t of tabs) {
-      const header = document.createElement("h3");
-      header.textContent = headerMap[t];
-      grid.appendChild(header);
-      renderItems(sorted.filter(i => i.type === t), grid);
-    }
-  } else {
+  group.forEach(t => {
     const header = document.createElement("h3");
-    header.textContent = headerMap[type];
+    header.textContent = headerMap[t];
     grid.appendChild(header);
-    renderItems(sorted.filter(i => i.type === type), grid);
-  }
+    renderItems(sorted.filter(i => i.type === t), grid);
+  });
 }
 
 function renderItems(items, container) {
