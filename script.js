@@ -38,6 +38,7 @@ let player = {
   subRealmIndex: 0, qi: 0,
   qiRequired: BASE_QI_REQUIREMENT,
   lifespan: BASE_LIFESPAN,
+  equippedBook: null,
   statMultiplier: 1, cultivating: false,
   gold: 0, spiritStones: 0, inventory: []
 };
@@ -45,7 +46,7 @@ let player = {
 let cultivationInterval = null;
 let agingInterval = null;
 
-// --- Breakthroug ---
+// --- Breakthrough ---
 
 let autoBreakEnabled = false;
 
@@ -147,6 +148,32 @@ function closeNoticeModal() {
   }
 }
 
+function getRandomRarity() {
+  const roll = Math.random() * 100;
+  if (roll <= 1) return "Legendary";
+  else if (roll <= 30) return "Rare";
+  else return "Common";
+}
+
+function getRandomBookByRarity(rarity) {
+  const filtered = cultivationBookPool.filter(b => b.rarity === rarity);
+  return filtered[Math.floor(Math.random() * filtered.length)];
+}
+
+function handleBookDrop() {
+  const rarity = getRandomRarity();
+  const book = getRandomBookByRarity(rarity);
+
+  player.inventory.push({ ...book });
+
+  const log = document.getElementById("battle-log");
+  const dropMsg = document.createElement("p");
+  dropMsg.classList.add("battle-drop");
+  dropMsg.textContent = `📖 Dropped: ${book.name} (${book.rarity})`;
+  log.appendChild(dropMsg);
+  log.scrollTop = log.scrollHeight;
+}
+
 // --- Game Logic ---
 function toggleCultivation() {
   const btn = document.getElementById("cultivate-btn");
@@ -154,7 +181,25 @@ function toggleCultivation() {
     player.cultivating = true;
     btn.textContent = "Stop Cultivating";
     cultivationInterval = setInterval(() => {
-      player.qi = Math.min(player.qiRequired, player.qi + player.stats.qi);
+      let qiGain = player.stats.qi;
+
+      // Apply cultivation book bonus if matched
+      if (player.equippedBook && player.physique.element === player.equippedBook.element) {
+        const book = player.equippedBook;
+        const qiBoost = book.baseQiBoost + (book.proficiencyLevel * book.qiPerLevel);
+        qiGain *= (1 + qiBoost);
+      
+        // Add proficiency gain
+        book.proficiencyProgress += 0.05;
+        const required = 100 + (book.proficiencyLevel - 1) * 150;
+        if (book.proficiencyProgress >= required) {
+          book.proficiencyProgress = 0;
+          book.proficiencyLevel += 1;
+        }
+      }
+      
+      player.qi = Math.min(player.qiRequired, player.qi + qiGain);
+
       updateUI();
       savePlayerData();
 
@@ -293,6 +338,7 @@ function loadPlayerData() {
     const major = Math.floor(player.subRealmIndex / 10);
     const minor = player.subRealmIndex % 10;
     player.statMultiplier = 1;
+    player.equippedBook = player.equippedBook ?? null;
     player.lifespan = BASE_LIFESPAN;
     for (let i = 0; i < major; i++) player.statMultiplier *= MAJOR_REALM_STAT_BOOST, player.lifespan += 8 * (i + 1);
     for (let i = 0; i < minor; i++) player.statMultiplier *= MINOR_REALM_STAT_BOOST, player.lifespan += 3 * (major + 1);
