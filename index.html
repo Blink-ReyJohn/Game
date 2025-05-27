@@ -31,7 +31,10 @@
     <p>Expected Lifespan: <span id="lifespan">85</span> years</p>
 
     <button onclick="toggleCultivation()" id="cultivate-btn">Start Cultivating</button>
-    <button onclick="breakthrough()">Breakthrough</button>
+    <div class="breakthrough-group">
+      <button class="breakthrough-btn" onclick="breakthrough()">Breakthrough</button>
+      <button class="auto-toggle" id="auto-break-btn" onclick="toggleAutoBreak()">A</button>
+    </div>
 
     <hr style="margin: 20px 0; border: 1px solid #555;" />
     <button onclick="toggleInventory()">Inventory</button>
