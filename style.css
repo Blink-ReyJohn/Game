@@ -238,6 +238,15 @@ button:disabled {
   border-color: #fff;
 }
 
+#equipped-book-section {
+  margin-top: 20px;
+  padding: 10px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+}
+
+
 /* === Tooltip & Rarity Display === */
 .tooltip {
   position: relative;
