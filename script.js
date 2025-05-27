@@ -515,6 +515,10 @@ function initializePlayer() {
   savePlayerData();
 }
 
+// make these global so inline onclick can see them
+window.rerollLife   = rerollLife;
+window.breakthrough = breakthrough;
+
 // --- Boot ---
 window.onload = () => {
   loadPlayerData();
