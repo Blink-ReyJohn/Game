@@ -58,13 +58,21 @@
   <!-- CENTER PANEL: Inventory -->
   <div id="inventory-panel" class="map hidden">
     <h1>Your Inventory</h1>
+  
+    <!-- Tabs -->
     <div id="inventory-tabs">
-      <button onclick="filterInventory('all')">All</button>
-      <button onclick="filterInventory('book')">Books</button>
-      <button onclick="filterInventory('equipment')">Equipment</button>
-      <button onclick="filterInventory('consumable')">Consumables</button>
+      <button onclick="filterInventory('all')" id="tab-all">All</button>
+      <button onclick="filterInventory('book')" id="tab-book">Books</button>
+      <button onclick="filterInventory('equipment')" id="tab-equipment">Equipment</button>
+      <button onclick="filterInventory('consumable')" id="tab-consumable">Consumables</button>
     </div>
-    <div id="inventory-grid" class="hidden" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 10px;"></div>
+  
+    <!-- Scrollable Inventory Grid -->
+    <div id="inventory-scroll-wrapper" class="hidden">
+      <div id="inventory-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 10px;"></div>
+    </div>
+  
+    <!-- Item Info + Equip Panel -->
     <div id="item-info" style="display: flex; margin-top: 20px; gap: 40px;">
       <div style="flex: 1;">
         <h3 id="item-name">Item Name</h3>
@@ -81,7 +89,7 @@
       </div>
       <hr />
       <div id="equipped-book-section">
-        <h3></h3>Equipped Cultivation Book</h3>
+        <h3>Equipped Cultivation Book</h3>
         <p id="equipped-book-name">None</p>
         <p id="equipped-book-details">—</p>
         <div style="height: 10px; background: #222; border: 1px solid #555; border-radius: 4px; overflow: hidden;">
