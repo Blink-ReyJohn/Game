@@ -93,13 +93,83 @@ function calculateStats() {
   player.stats.speed = Math.round(base * mod.speed * player.statMultiplier);
 }
 
+function toggleCultivation() {
+  const btn = document.getElementById("cultivate-btn");
+  if (!player.cultivating) {
+    player.cultivating = true;
+    btn.textContent = "Stop Cultivating";
+    cultivationInterval = setInterval(() => {
+      let qiGain = player.stats.qi;
+
+      if (player.equippedBook && player.physique.element === player.equippedBook.element) {
+        const book = player.equippedBook;
+        const qiBoost = book.baseQiBoost + (book.proficiencyLevel * book.qiPerLevel);
+        qiGain *= (1 + qiBoost);
+
+        book.proficiencyProgress += 0.05;
+        const required = 100 + (book.proficiencyLevel - 1) * 150;
+        if (book.proficiencyProgress >= required) {
+          book.proficiencyProgress = 0;
+          book.proficiencyLevel++;
+        }
+      }
+
+      player.qi = Math.min(player.qiRequired, player.qi + qiGain);
+      updateUI();
+      savePlayerData();
+
+      if (autoBreakEnabled && player.qi >= player.qiRequired) {
+        breakthrough();
+      }
+    }, 1000);
+  } else {
+    player.cultivating = false;
+    btn.textContent = "Start Cultivating";
+    clearInterval(cultivationInterval);
+  }
+}
+
+function toggleAutoBreak() {
+  autoBreakEnabled = !autoBreakEnabled;
+  document.getElementById("auto-break-btn").classList.toggle("active", autoBreakEnabled);
+}
+
+function breakthrough() {
+  if (player.qi < player.qiRequired) {
+    const modal = document.getElementById("notice-modal");
+    modal.querySelector(".modal-message").textContent = `Need ${player.qiRequired} Qi, but you have ${player.qi}.`;
+    modal.dataset.type = "warning";
+    modal.classList.remove("hidden");
+    return;
+  }
+
+  player.qi = 0;
+  const prevMajor = Math.floor(player.subRealmIndex / 10);
+  if (player.subRealmIndex < subRealms.length - 1) {
+    player.subRealmIndex++;
+    player.qiRequired = subRealms[player.subRealmIndex].qiRequired;
+    const newMajor = Math.floor(player.subRealmIndex / 10);
+    const tier = newMajor;
+
+    if (newMajor > prevMajor) {
+      player.statMultiplier *= MAJOR_REALM_STAT_BOOST;
+      player.lifespan += 8 * (tier + 1);
+    } else {
+      player.statMultiplier *= MINOR_REALM_STAT_BOOST;
+      player.lifespan += 3 * (tier + 1);
+    }
+
+    calculateStats();
+    updateUI();
+    savePlayerData();
+  }
+}
+
 function updateUI() {
   document.getElementById("player-name").textContent = player.name || "Unnamed";
   document.getElementById("age").textContent = player.age;
   document.getElementById("talent").textContent = player.talent;
-
-  const realm = subRealms[player.subRealmIndex];
-  document.getElementById("realm").textContent = realm.name;
+  document.getElementById("realm").textContent = subRealms[player.subRealmIndex].name;
 
   const physEl = document.getElementById("physique");
   if (player.physique) {
@@ -117,12 +187,33 @@ function updateUI() {
   document.getElementById("spirit-stones").textContent = player.spiritStones;
 
   const pct = Math.min(100, (player.qi / player.qiRequired) * 100);
-  const xpBar = document.getElementById("xp-bar");
-  xpBar.style.width = pct + "%";
-  xpBar.title = `${player.qi} / ${player.qiRequired} Qi`;
+  document.getElementById("xp-bar").style.width = pct + "%";
+  document.getElementById("xp-bar").title = `${player.qi} / ${player.qiRequired} Qi`;
   document.getElementById("xp-text").textContent = `${player.qi} / ${player.qiRequired}`;
 
   updateEquippedBookUI();
+}
+
+function updateEquippedBookUI() {
+  const book = player.equippedBook;
+  const nameEl = document.getElementById("equipped-book-name");
+  const detailEl = document.getElementById("equipped-book-details");
+  const bar = document.getElementById("proficiency-bar");
+  if (!book) {
+    nameEl.textContent = "None";
+    detailEl.textContent = "—";
+    bar.style.width = "0%";
+    return;
+  }
+  try {
+    nameEl.textContent = `${book.name} (Lv ${book.proficiencyLevel})`;
+    detailEl.textContent = `+${((book.baseQiBoost || 0) + (book.proficiencyLevel * (book.qiPerLevel || 0))) * 100}% Qi | +${((book.baseDmgBoost || 0) + (book.proficiencyLevel * (book.dmgPerLevel || 0))) * 100}% DMG`;
+    const required = 100 + (book.proficiencyLevel - 1) * 150;
+    const progress = Math.min(100, (book.proficiencyProgress / required) * 100);
+    bar.style.width = `${progress}%`;
+  } catch (err) {
+    console.error("Error rendering book UI:", err);
+  }
 }
 
 function startAging() {
@@ -157,7 +248,6 @@ function closeNoticeModal() {
   }
 }
 
-// --- Rebirth Flow ---
 function rerollLife() {
   document.getElementById("reroll-modal").classList.remove("hidden");
 }
@@ -192,34 +282,10 @@ function confirmReroll(confirm) {
 
   const modal = document.getElementById("notice-modal");
   modal.querySelector(".modal-message").textContent =
-    `You were reborn as ${name} with ${talent} talent and the physique "${physique.name}".`;
+    `You were reborn as ${name} with ${talent} talent and the physique \"${physique.name}\".`;
   modal.classList.remove("hidden");
 }
 
-function updateEquippedBookUI() {
-  const book = player.equippedBook;
-  const nameEl = document.getElementById("equipped-book-name");
-  const detailEl = document.getElementById("equipped-book-details");
-  const bar = document.getElementById("proficiency-bar");
-  if (!book) {
-    nameEl.textContent = "None";
-    detailEl.textContent = "—";
-    bar.style.width = "0%";
-    return;
-  }
-  try {
-    nameEl.textContent = `${book.name} (Lv ${book.proficiencyLevel})`;
-    detailEl.textContent = `+${((book.baseQiBoost || 0) + (book.proficiencyLevel * (book.qiPerLevel || 0))) * 100}% Qi | +${((book.baseDmgBoost || 0) + (book.proficiencyLevel * (book.dmgPerLevel || 0))) * 100}% DMG`;
-    const required = 100 + (book.proficiencyLevel - 1) * 150;
-    const progress = Math.min(100, (book.proficiencyProgress / required) * 100);
-    bar.style.width = `${progress}%`;
-  } catch (err) {
-    console.error("Error rendering book UI:", err);
-  }
-}
-
-
-// --- Boot ---
 window.onload = () => {
   const saved = localStorage.getItem("cultivationGameSave");
   if (saved) {
@@ -245,8 +311,8 @@ window.onload = () => {
     updateUI();
     startAging();
   } else {
-    rerollLife(); // force character creation on first load
+    rerollLife();
   }
 
-  setInterval(savePlayerData, 600000); // every 10 min
+  setInterval(savePlayerData, 600000);
 };
