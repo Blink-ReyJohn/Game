@@ -162,10 +162,16 @@ function getRandomBookByRarity(rarity) {
 }
 
 function handleBookDrop() {
+  if (typeof cultivationBookPool === "undefined") {
+    console.warn("⛔ cultivationBookPool not loaded. Check script source.");
+    return;
+  }
+
   const rarity = getRandomRarity();
   const book = getRandomBookByRarity(rarity);
+  if (!book) return;
 
-  player.inventory.push({ ...book });
+  player.inventory.push({ ...book, type: "book" }); // ✅ Ensures books are recognized
 
   const log = document.getElementById("battle-log");
   const dropMsg = document.createElement("p");
