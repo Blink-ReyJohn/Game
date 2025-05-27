@@ -332,6 +332,76 @@ function toggleInventory() {
   }
 }
 
+function filterInventory(type) {
+  const grid = document.getElementById("inventory-grid");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+
+  const headerMap = {
+    equipment: "Equipment",
+    book: "Book",
+    consumable: "Consumable"
+  };
+
+  // Sort logic
+  const sorted = [...player.inventory].sort((a, b) => {
+    const rarityOrder = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythical"];
+    const rarityA = rarityOrder.indexOf(a.rarity || "Common");
+    const rarityB = rarityOrder.indexOf(b.rarity || "Common");
+    if (rarityA !== rarityB) return rarityB - rarityA;
+    return (a.name || "").localeCompare(b.name || "");
+  });
+
+  const tabs = ["equipment", "book", "consumable"];
+  if (type === "all") {
+    for (const t of tabs) {
+      const header = document.createElement("h3");
+      header.textContent = headerMap[t];
+      grid.appendChild(header);
+      renderItems(sorted.filter(i => i.type === t), grid);
+    }
+  } else {
+    const header = document.createElement("h3");
+    header.textContent = headerMap[type];
+    grid.appendChild(header);
+    renderItems(sorted.filter(i => i.type === type), grid);
+  }
+}
+
+function renderItems(items, container) {
+  const grouped = {};
+  for (const item of items) {
+    const key = `${item.name}-${item.rarity}`;
+    if (!grouped[key]) {
+      grouped[key] = { ...item, quantity: 1 };
+    } else {
+      grouped[key].quantity++;
+    }
+  }
+
+  for (const key in grouped) {
+    const item = grouped[key];
+    const cell = document.createElement("div");
+    cell.className = "inventory-item";
+    if (item.rarity) {
+      cell.classList.add(item.rarity.toLowerCase());
+    }
+
+    cell.innerHTML = `
+      <div class="item-info">
+        <span class="item-name">${item.name}</span>
+        ${item.quantity > 1 ? `<span class="item-qty">x${item.quantity}</span>` : ""}
+      </div>
+    `;
+
+    cell.title = `${item.name}\nRarity: ${item.rarity}\nElement: ${item.element || "None"}${item.proficiencyLevel ? `\nLevel: ${item.proficiencyLevel}` : ""}`;
+    cell.onclick = () => showItemInfo(item);
+    container.appendChild(cell);
+  }
+}
+
+
 function toggleBattle() {
   const panel = document.getElementById("battle-panel");
   const isHidden = panel.classList.contains("hidden");
