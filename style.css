@@ -9,6 +9,11 @@ body {
   overflow: hidden;
 }
 
+h1, h2, h3, p {
+  margin: 5px 0;
+  padding: 0;
+}
+
 /* === Layout === */
 .game-container {
   display: flex;
@@ -19,6 +24,7 @@ body {
   box-sizing: border-box;
   overflow: hidden;
 }
+
 .panel {
   width: 25%;
   padding: 20px;
@@ -27,7 +33,9 @@ body {
   box-sizing: border-box;
   overflow-y: auto;
 }
-.panel.left, .panel.right {
+
+.panel.left,
+.panel.right {
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -35,6 +43,8 @@ body {
   flex-direction: column;
   justify-content: flex-start;
 }
+
+/* === Center Panel === */
 .map {
   width: 45%;
   text-align: center;
@@ -73,21 +83,94 @@ button:disabled {
 .yellow { background-color: #f1c40f; color: black; }
 .purple { background-color: #9b59b6; }
 
-/* === Inventory === */
-#inventory-tabs button {
-  width: auto;
-  margin-right: 10px;
+/* === Progress Bar === */
+.progress-bar {
+  position: relative;
+  width: 100%;
+  background-color: #444;
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 10px 0;
+  border: 1px solid #555;
+  background: #111;
+  height: 20px;
+}
+.progress {
+  height: 100%;
+  background-color: #27ae60;
+  width: 0%;
+  transition: width 0.5s ease-in-out;
+}
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* === Tooltip === */
+.tooltip {
+  position: relative;
+  cursor: help;
   display: inline-block;
 }
-#inventory-scroll-wrapper {
-  max-height: 400px;
-  overflow-y: auto;
-  margin-top: 10px;
-  padding-right: 5px;
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #111;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  font-size: 13px;
+  border: 1px solid #444;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 20;
 }
-#inventory-scroll-wrapper.hidden {
-  display: none;
+.tooltip:hover::after {
+  opacity: 1;
 }
+.tooltip::before {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #111;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 19;
+}
+.tooltip:hover::before {
+  opacity: 1;
+}
+
+/* === Rarity Tags === */
+.rarity-Common    { color: gray; background-color: rgba(128, 128, 128, 0.15); }
+.rarity-Uncommon  { color: #2ecc71; background-color: rgba(46, 204, 113, 0.15); }
+.rarity-Rare      { color: #3498db; background-color: rgba(52, 152, 219, 0.15); }
+.rarity-Epic      { color: #9b59b6; background-color: rgba(155, 89, 182, 0.15); }
+.rarity-Legendary { color: gold; background-color: rgba(255, 215, 0, 0.1); }
+.rarity-Mythical  { color: crimson; background-color: rgba(220, 20, 60, 0.1); }
+
+.rarity-Common, .rarity-Uncommon, .rarity-Rare,
+.rarity-Epic, .rarity-Legendary, .rarity-Mythical {
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* === Inventory === */
 #inventory-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -95,7 +178,10 @@ button:disabled {
   padding: 10px;
 }
 
-/* === Inventory Item === */
+#inventory-grid.hidden {
+  display: none !important;
+}
+
 .inventory-item {
   border: 1px solid #aaa;
   padding: 10px;
@@ -110,25 +196,150 @@ button:disabled {
   border-color: #fff;
 }
 
-/* === Modal === */
-.modal {
-  position: fixed;
-  top: 50%;
+.inventory-item .info-card {
+  position: absolute;
+  top: 100%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
+  width: 200px;
   background: #222;
   color: white;
-  padding: 20px;
-  border: 2px solid #444;
-  border-radius: 10px;
-  z-index: 1000;
-  max-width: 400px;
+  border: 1px solid #444;
+  padding: 10px;
+  font-size: 12px;
+  z-index: 10;
+  display: none;
+  white-space: normal;
 }
-.modal-content {
+.inventory-item:hover .info-card {
+  display: block;
+}
+
+#inventory-scroll-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding-right: 5px;
+}
+#inventory-scroll-wrapper.hidden {
+  display: none;
+}
+
+
+/* === Equipped Book Section === */
+#equipped-book-section {
+  margin-top: 20px;
+  padding: 10px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 8px;
+}
+
+/* === Breakthrough === */
+.breakthrough-group {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  gap: 5px;
+  align-items: center;
 }
-.modal.hidden {
+.breakthrough-btn {
+  flex: 1;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 15px;
+  background-color: #2e2e2e;
+  color: white;
+  border: 2px solid #666;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.auto-toggle {
+  width: 40px;
+  height: 48px;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: #2e2e2e;
+  color: red;
+  border: 2px solid #666;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.auto-toggle.active {
+  color: limegreen;
+}
+
+/* === Battle Log === */
+#battle-log {
+  max-height: 250px;
+  overflow-y: auto;
+  background: #111;
+  padding: 10px;
+  border: 1px solid #444;
+  font-family: monospace;
+  font-size: 14px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+#battle-log p {
+  margin: 5px 0;
+  line-height: 1.4em;
+  overflow-wrap: anywhere;
+  transition: all 0.3s ease;
+}
+
+.battle-hit  { color: #f66; font-weight: bold; }
+.battle-heal { color: #6f6; }
+.battle-drop { color: #ffd700; font-weight: bold; }
+
+/* === Enemy Image === */
+.enemy-pic {
+  max-height: 120px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255,255,255,0.2);
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* === HP Bars === */
+.hp-bar {
+  width: 100%;
+  background-color: #333;
+  border: 1px solid #555;
+  border-radius: 4px;
+  height: 20px;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.hp-fill {
+  background-color: #e74c3c;
+  height: 100%;
+  width: 100%;
+  transition: width 0.5s ease;
+}
+
+/* === Floating Damage === */
+.floating-damage {
+  position: absolute;
+  font-size: 16px;
+  font-weight: bold;
+  color: yellow;
+  pointer-events: none;
+  animation: floatUp 1s ease forwards;
+  z-index: 999;
+}
+@keyframes floatUp {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-30px); }
+}
+
+/* === Helpers === */
+.hidden {
   display: none;
 }
