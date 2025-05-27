@@ -5,6 +5,7 @@ const QI_SCALE = 1.35;
 const MAJOR_REALM_STAT_BOOST = 1.10;
 const MINOR_REALM_STAT_BOOST = 1 + (MAJOR_REALM_STAT_BOOST - 1) * 0.7;
 let rerollPreview = null;
+let activeCategory = null;
 
 // --- Pools ---
 const chineseNames = ["Li Wei", "Zhao Hui", "Chen Jie", "Zhou Lei", "Lin Tao"];
@@ -335,6 +336,16 @@ function filterInventory(type) {
   const grid = document.getElementById("inventory-grid");
   if (!grid) return;
 
+  // Toggle off if same category is clicked again
+  if (activeCategory === type) {
+    grid.classList.add("hidden");
+    grid.innerHTML = "";
+    activeCategory = null;
+    return;
+  }
+
+  activeCategory = type;
+  grid.classList.remove("hidden");
   grid.innerHTML = "";
 
   const headerMap = {
@@ -343,7 +354,6 @@ function filterInventory(type) {
     consumable: "Consumable"
   };
 
-  // Sort logic
   const sorted = [...player.inventory].sort((a, b) => {
     const rarityOrder = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythical"];
     const rarityA = rarityOrder.indexOf(a.rarity || "Common");
@@ -353,6 +363,7 @@ function filterInventory(type) {
   });
 
   const tabs = ["equipment", "book", "consumable"];
+
   if (type === "all") {
     for (const t of tabs) {
       const header = document.createElement("h3");
