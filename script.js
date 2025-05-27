@@ -112,6 +112,7 @@ function updateUI() {
   xpBar.style.width = pct + "%";
   xpBar.title = `${player.qi} / ${player.qiRequired} Qi`;
   document.getElementById("xp-text").textContent = `${player.qi} / ${player.qiRequired}`;
+  updateEquippedBookUI();
 }
 
 function startAging() {
@@ -324,9 +325,37 @@ function loadInventory() {
 
 function showItemInfo(item) {
   document.getElementById("item-name").textContent = item.name;
-  document.getElementById("item-description").textContent = item.desc;
-  document.getElementById("use-button").style.display = item.type === "consumable" ? "inline-block" : "none";
-  document.getElementById("equip-button").style.display = item.type === "item" ? "inline-block" : "none";
+  document.getElementById("item-description").textContent = `Element: ${item.element} | Rarity: ${item.rarity}`;
+  
+  const canEquip = item.element === player.physique.element;
+  document.getElementById("equip-button").style.display = canEquip ? "inline-block" : "none";
+
+  document.getElementById("equip-button").onclick = () => {
+    player.equippedBook = item;
+    updateEquippedBookUI();
+    savePlayerData();
+  };
+}
+
+function updateEquippedBookUI() {
+  const book = player.equippedBook;
+  const nameEl = document.getElementById("equipped-book-name");
+  const detailEl = document.getElementById("equipped-book-details");
+  const bar = document.getElementById("proficiency-bar");
+
+  if (!book) {
+    nameEl.textContent = "None";
+    detailEl.textContent = "—";
+    bar.style.width = "0%";
+    return;
+  }
+
+  nameEl.textContent = `${book.name} (Lv ${book.proficiencyLevel})`;
+  detailEl.textContent = `+${(book.baseQiBoost + book.proficiencyLevel * book.qiPerLevel) * 100}% Qi | +${(book.baseDmgBoost + book.proficiencyLevel * book.dmgPerLevel) * 100}% DMG`;
+  
+  const required = 100 + (book.proficiencyLevel - 1) * 150;
+  const progress = Math.min(100, (book.proficiencyProgress / required) * 100);
+  bar.style.width = `${progress}%`;
 }
 
 function loadPlayerData() {
@@ -343,6 +372,7 @@ function loadPlayerData() {
     for (let i = 0; i < major; i++) player.statMultiplier *= MAJOR_REALM_STAT_BOOST, player.lifespan += 8 * (i + 1);
     for (let i = 0; i < minor; i++) player.statMultiplier *= MINOR_REALM_STAT_BOOST, player.lifespan += 3 * (major + 1);
     calculateStats();
+    updateEquippedBookUI();
   }
 }
 
