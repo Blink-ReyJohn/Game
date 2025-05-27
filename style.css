@@ -178,10 +178,6 @@ button:disabled {
   padding: 10px;
 }
 
-#inventory-grid.hidden {
-  display: none !important;
-}
-
 .inventory-item {
   border: 1px solid #aaa;
   padding: 10px;
@@ -214,17 +210,6 @@ button:disabled {
 .inventory-item:hover .info-card {
   display: block;
 }
-
-#inventory-scroll-wrapper {
-  max-height: 400px;
-  overflow-y: auto;
-  margin-top: 10px;
-  padding-right: 5px;
-}
-#inventory-scroll-wrapper.hidden {
-  display: none;
-}
-
 
 /* === Equipped Book Section === */
 #equipped-book-section {
