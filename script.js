@@ -260,16 +260,35 @@ function breakthrough() {
 }
 
 function rerollLife() {
+  const previewName = chineseNames[Math.floor(Math.random() * chineseNames.length)];
+  const previewTalent = Math.floor(Math.random() * 100) + 1;
+  const previewPhysique = getRandomPhysique();
+
+  document.getElementById("modal-name").textContent = previewName;
+  document.getElementById("modal-talent").textContent = previewTalent;
+  document.getElementById("modal-physique").textContent = previewPhysique.name;
+
+  // Store these for confirmation
+  rerollPreview = {
+    name: previewName,
+    talent: previewTalent,
+    physique: previewPhysique
+  };
+
   document.getElementById("reroll-modal").classList.remove("hidden");
 }
 
+let rerollPreview = null;
+
 function confirmReroll(yes) {
   document.getElementById("reroll-modal").classList.add("hidden");
-  if (!yes) return;
+  if (!yes || !rerollPreview) return;
 
-  player.name = chineseNames[Math.floor(Math.random() * chineseNames.length)];
-  player.talent = Math.floor(Math.random() * 100) + 1;
-  player.physique = getRandomPhysique();
+  const { name, talent, physique } = rerollPreview;
+
+  player.name = name;
+  player.talent = talent;
+  player.physique = physique;
   player.age = 13;
   player.subRealmIndex = 0;
   player.qi = 0;
@@ -290,6 +309,8 @@ function confirmReroll(yes) {
   modal.querySelector(".modal-message").textContent =
     `🌅 Reborn as ${player.name} with ${player.talent} talent and the physique "${player.physique.name}".`;
   modal.classList.remove("hidden");
+
+  rerollPreview = null;
 }
 
 // --- UI Control ---
