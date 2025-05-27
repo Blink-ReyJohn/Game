@@ -166,21 +166,23 @@ button:disabled {
 
 .auto-toggle {
   width: 40px;
+  height: 48px;
   font-weight: bold;
   font-size: 16px;
-  background-color: #444;
-  color: #0f0;
+  background-color: #2e2e2e; /* Matches Breakthrough button */
+  color: red;
   border: 2px solid #666;
   border-radius: 5px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .auto-toggle.active {
-  background-color: #2ecc71;
-  color: black;
+  color: limegreen;
 }
-
 
 /* === Modal === */
 .modal {
