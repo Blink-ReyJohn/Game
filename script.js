@@ -262,6 +262,71 @@ function rerollLife() {
   modal.classList.remove("hidden");
 }
 
+// --- Inventory Order ---
+const rarityOrder = {
+  "Mythical": 0,
+  "Legendary": 1,
+  "Epic": 2,
+  "Rare": 3,
+  "Uncommon": 4,
+  "Common": 5,
+  "Gray": 6
+};
+
+function filterInventory(type) {
+  const wrapper = document.getElementById("inventory-scroll-wrapper");
+  const grid = document.getElementById("inventory-grid");
+  const tabs = document.getElementById("inventory-tabs").children;
+
+  if (activeCategory === type) {
+    grid.innerHTML = "";
+    wrapper.classList.add("hidden");
+    for (const tab of tabs) tab.style.display = "inline-block";
+    activeCategory = null;
+    return;
+  }
+
+  activeCategory = type;
+  grid.innerHTML = "";
+  wrapper.classList.remove("hidden");
+
+  for (const tab of tabs) {
+    tab.style.display = tab.id.includes(type) || type === "all" ? "inline-block" : "none";
+  }
+
+  const sorted = [...player.inventory].sort((a, b) => {
+    const rarityA = rarityOrder[a.rarity] ?? 99;
+    const rarityB = rarityOrder[b.rarity] ?? 99;
+    if (rarityA !== rarityB) return rarityA - rarityB;
+    return a.name.localeCompare(b.name);
+  });
+
+  const headerMap = {
+    book: "📘 Books",
+    equipment: "🛡️ Equipment",
+    consumable: "🧪 Consumables"
+  };
+
+  const group = type === "all" ? ["equipment", "book", "consumable"] : [type];
+
+  group.forEach(t => {
+    const header = document.createElement("h3");
+    header.textContent = headerMap[t];
+    grid.appendChild(header);
+    renderItems(sorted.filter(i => i.type === t), grid);
+  });
+}
+
+function renderItems(items, container) {
+  for (const item of items) {
+    const div = document.createElement("div");
+    div.className = `inventory-item rarity-${item.rarity.toLowerCase()}`;
+    div.textContent = item.name + (item.quantity ? ` x${item.quantity}` : "");
+    container.appendChild(div);
+  }
+}
+
+
 // --- Modal Close ---
 function closeNoticeModal() {
   const modal = document.getElementById("notice-modal");
