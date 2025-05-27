@@ -215,6 +215,17 @@ button:disabled {
   display: block;
 }
 
+#inventory-scroll-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 10px;
+  padding-right: 5px;
+}
+#inventory-scroll-wrapper.hidden {
+  display: none;
+}
+
+
 /* === Equipped Book Section === */
 #equipped-book-section {
   margin-top: 20px;
