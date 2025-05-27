@@ -3,6 +3,7 @@ let currentEnemy;
 let playerCurrentHP;
 let currentEnemyHP;
 let currentEnemyMax;
+let autoBattleEnabled = false;
 
 // Start battle
 function startBattle() {
@@ -58,6 +59,15 @@ function startBattle() {
       clearInterval(currentBattleInterval);
       appendLog(`<strong class='battle-drop'>🎉 You defeated the ${currentEnemy.name}!</strong>`);
       gainBattleProficiency();
+      handleBookDrop();
+      updateHPBars(0, 0, player.stats.health, currentEnemyMax);
+      updateUI();
+      savePlayerData();
+      
+      if (autoBattleEnabled) {
+        setTimeout(startBattle, 1500); // Wait 1.5s before next
+      }
+
 
       const mod = rarityModifiers[currentEnemy.rarity];
       const gold = Math.floor(Math.random() * 20 * mod.xp);
@@ -67,7 +77,8 @@ function startBattle() {
       appendLog(`💰 Gained ${gold} gold and ${stones} spirit stones.`);
       handleBookDrop?.();
 
-      if (Math.random() < mod.dropChance) {
+      let dropChance = mod.dropChance + (currentEnemy.realmDiff || 0) * 0.05;
+      if (Math.random() < dropChance) {
         const loot = inventoryItems[Math.floor(Math.random() * inventoryItems.length)];
         player.inventory.push(loot);
         appendLog(`📦 Looted: <em>${loot.name}</em>`);
@@ -152,17 +163,30 @@ const battleEnemies = [
 
 // Enemy generator
 function getRandomEnemyFromList() {
+  const playerRealm = player.subRealmIndex;
+  const rand = Math.random() * 100;
+  let realmOffset = 0;
+
+  if (rand <= 0.1) realmOffset = 10;       // 1 major realm
+  else if (rand <= 1.1) realmOffset = 5;
+  else if (rand <= 6.1) realmOffset = 4;
+  else if (rand <= 16.1) realmOffset = 3;
+  else if (rand <= 36.1) realmOffset = 1;
+  else realmOffset = 0;
+
+  const difficultyFactor = 1 + (realmOffset * 0.05); // +5% per realm
+
   const base = battleEnemies[Math.floor(Math.random() * battleEnemies.length)];
-  const variance = 0.2;
-  const scale = 1 + (Math.random() * variance * 2 - variance);
   return {
     name: base.name,
     rarity: base.rarity,
-    health: Math.round(base.baseStats.health * scale),
-    strength: Math.round(base.baseStats.strength * scale),
-    speed: Math.round(base.baseStats.speed * scale)
+    health: Math.round(base.baseStats.health * difficultyFactor),
+    strength: Math.round(base.baseStats.strength * difficultyFactor),
+    speed: Math.round(base.baseStats.speed * difficultyFactor),
+    realmDiff: realmOffset
   };
 }
+
 
 // Cultivation Book Proficiency
 function gainBattleProficiency() {
@@ -178,6 +202,14 @@ function gainBattleProficiency() {
 
   updateEquippedBookUI();
   savePlayerData();
+}
+
+// Auto battle
+function toggleAutoBattle() {
+  autoBattleEnabled = !autoBattleEnabled;
+  const btn = document.getElementById("auto-battle-btn");
+  btn.classList.toggle("active", autoBattleEnabled);
+  btn.textContent = autoBattleEnabled ? "🔁 Auto ON" : "🤖 Auto Battle";
 }
 
 
