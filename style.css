@@ -336,8 +336,24 @@ button:disabled {
   display: none;
 }
 
+#battle-log {
+  max-height: 250px;
+  overflow-y: auto;
+  background: #111;
+  padding: 10px;
+  border: 1px solid #444;
+  font-family: monospace;
+  font-size: 14px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
 #battle-log p {
   margin: 5px 0;
+  line-height: 1.4em;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: anywhere; /* ✅ force long words to break */
   transition: all 0.3s ease;
 }
 
