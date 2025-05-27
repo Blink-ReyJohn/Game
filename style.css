@@ -144,6 +144,44 @@ button:disabled {
   z-index: 1;
 }
 
+/* === Breakthrough === */
+
+.breakthrough-group {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.breakthrough-btn {
+  flex: 1;
+  padding: 12px;
+  font-weight: bold;
+  font-size: 15px;
+  background-color: #2e2e2e;
+  color: white;
+  border: 2px solid #666;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.auto-toggle {
+  width: 40px;
+  font-weight: bold;
+  font-size: 16px;
+  background-color: #444;
+  color: #0f0;
+  border: 2px solid #666;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.auto-toggle.active {
+  background-color: #2ecc71;
+  color: black;
+}
+
+
 /* === Modal === */
 .modal {
   position: fixed;
