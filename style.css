@@ -178,6 +178,10 @@ button:disabled {
   padding: 10px;
 }
 
+#inventory-grid.hidden {
+  display: none !important;
+}
+
 .inventory-item {
   border: 1px solid #aaa;
   padding: 10px;
