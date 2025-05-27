@@ -152,6 +152,23 @@ function getRandomEnemyFromList() {
   };
 }
 
+// Cultivation Book Proficiency
+function gainBattleProficiency() {
+  const book = player.equippedBook;
+  if (!book || player.physique.element !== book.element) return;
+
+  book.proficiencyProgress += 0.05;
+  const required = 100 + (book.proficiencyLevel - 1) * 150;
+  if (book.proficiencyProgress >= required) {
+    book.proficiencyProgress = 0;
+    book.proficiencyLevel += 1;
+  }
+
+  updateEquippedBookUI();
+  savePlayerData();
+}
+
+
 // Slugify name for image filenames
 function slug(name) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
