@@ -324,8 +324,12 @@ function toggleInventory() {
   const panel = document.getElementById("inventory-panel");
   const isHidden = panel.classList.contains("hidden");
   hideAllPanels();
-  if (isHidden) panel.classList.remove("hidden");
-  else document.getElementById("center-content").classList.remove("hidden");
+  if (isHidden) {
+    panel.classList.remove("hidden");
+    loadInventory(); // <- THIS IS MISSING
+  } else {
+    document.getElementById("center-content").classList.remove("hidden");
+  }
 }
 
 function toggleBattle() {
