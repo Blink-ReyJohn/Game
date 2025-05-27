@@ -196,6 +196,29 @@ function confirmReroll(confirm) {
   modal.classList.remove("hidden");
 }
 
+function updateEquippedBookUI() {
+  const book = player.equippedBook;
+  const nameEl = document.getElementById("equipped-book-name");
+  const detailEl = document.getElementById("equipped-book-details");
+  const bar = document.getElementById("proficiency-bar");
+  if (!book) {
+    nameEl.textContent = "None";
+    detailEl.textContent = "—";
+    bar.style.width = "0%";
+    return;
+  }
+  try {
+    nameEl.textContent = `${book.name} (Lv ${book.proficiencyLevel})`;
+    detailEl.textContent = `+${((book.baseQiBoost || 0) + (book.proficiencyLevel * (book.qiPerLevel || 0))) * 100}% Qi | +${((book.baseDmgBoost || 0) + (book.proficiencyLevel * (book.dmgPerLevel || 0))) * 100}% DMG`;
+    const required = 100 + (book.proficiencyLevel - 1) * 150;
+    const progress = Math.min(100, (book.proficiencyProgress / required) * 100);
+    bar.style.width = `${progress}%`;
+  } catch (err) {
+    console.error("Error rendering book UI:", err);
+  }
+}
+
+
 // --- Boot ---
 window.onload = () => {
   const saved = localStorage.getItem("cultivationGameSave");
