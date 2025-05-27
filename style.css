@@ -164,6 +164,15 @@ button:disabled {
 .rarity-Legendary { color: gold; background-color: rgba(255, 215, 0, 0.1); }
 .rarity-Mythical  { color: crimson; background-color: rgba(220, 20, 60, 0.1); }
 
+/* Rarity Colors */
+.rarity-mythical { background-color: #b300ff; color: white; }
+.rarity-legendary { background-color: gold; color: black; }
+.rarity-epic { background-color: #8000ff; color: white; }
+.rarity-rare { background-color: #2e86de; color: white; }
+.rarity-uncommon { background-color: #27ae60; color: white; }
+.rarity-common { background-color: #bdc3c7; color: black; }
+.rarity-gray { background-color: #7f8c8d; color: white; }
+
 .rarity-Common, .rarity-Uncommon, .rarity-Rare,
 .rarity-Epic, .rarity-Legendary, .rarity-Mythical {
   padding: 2px 6px;
