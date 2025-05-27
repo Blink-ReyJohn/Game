@@ -529,10 +529,5 @@ window.onload = () => {
   } else {
     updateUI();
   }
-  document.getElementById("modal-confirm-btn")
-    .addEventListener("click", () => {
-      document.getElementById("init-modal").classList.add("hidden");
-      savePlayerData();
-    });
   setInterval(savePlayerData, 600000); // save every 10 min
 };
