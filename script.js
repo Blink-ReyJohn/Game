@@ -45,6 +45,10 @@ let player = {
 let cultivationInterval = null;
 let agingInterval = null;
 
+// --- Breakthroug ---
+
+let autoBreakEnabled = false;
+
 // --- Utility Functions ---
 function savePlayerData() {
   try {
@@ -153,6 +157,11 @@ function toggleCultivation() {
       player.qi = Math.min(player.qiRequired, player.qi + player.stats.qi);
       updateUI();
       savePlayerData();
+
+      // Auto-breakthrough if enabled
+      if (autoBreakEnabled && player.qi >= player.qiRequired) {
+        breakthrough();
+      }
     }, 1000);
   } else {
     player.cultivating = false;
@@ -160,6 +169,7 @@ function toggleCultivation() {
     clearInterval(cultivationInterval);
   }
 }
+
 
 function breakthrough() {
   if (player.qi < player.qiRequired) {
