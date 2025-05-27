@@ -273,7 +273,6 @@ button:disabled {
   overflow-wrap: anywhere;
   transition: all 0.3s ease;
 }
-
 .battle-hit  { color: #f66; font-weight: bold; }
 .battle-heal { color: #6f6; }
 .battle-drop { color: #ffd700; font-weight: bold; }
@@ -324,7 +323,46 @@ button:disabled {
   100% { opacity: 0; transform: translateY(-30px); }
 }
 
-/* === Helpers === */
+/* === Hidden Helper === */
 .hidden {
   display: none;
+}
+
+/* === Modal Fix === */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #1a1a1a;
+  color: white;
+  padding: 20px;
+  border: 2px solid #555;
+  border-radius: 10px;
+  z-index: 10000;
+  max-width: 90%;
+  width: 400px;
+  box-shadow: 0 0 15px rgba(255,255,255,0.2);
+  text-align: center;
+}
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modal.hidden {
+  display: none;
+}
+.modal button {
+  background-color: #444;
+  border: 1px solid #888;
+  color: white;
+  font-size: 14px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.modal button:hover {
+  background-color: #666;
 }
