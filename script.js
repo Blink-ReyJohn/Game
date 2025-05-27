@@ -314,10 +314,23 @@ function loadInventory() {
   if (!grid) return;
 
   grid.innerHTML = "";
+
   player.inventory.forEach((item) => {
     const cell = document.createElement("div");
     cell.textContent = item.name;
     cell.className = "inventory-item";
+
+    // Add rarity class for color
+    if (item.rarity) {
+      cell.classList.add(item.rarity.toLowerCase()); // e.g. rare, legendary
+    }
+
+    // Add tooltip for books
+    if (item.type === "book") {
+      cell.title = `${item.name} (${item.rarity})\nElement: ${item.element}\nLv ${item.proficiencyLevel}`;
+    }
+
+    // Click to inspect item
     cell.onclick = () => showItemInfo(item);
     grid.appendChild(cell);
   });
