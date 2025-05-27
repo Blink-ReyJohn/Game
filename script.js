@@ -23,18 +23,12 @@ const physiquePool = [
 ];
 
 // --- Realms ---
-const majorNames = [
-  "Qi Gathering", "Foundation Building", "Core Formation", "Golden Core", "Soul Formation",
-  "Nascent Soul", "Nihility", "Ascension", "Half Immortal", "Earth Immortal"
-];
+const majorNames = ["Qi Gathering", "Foundation Building", "Core Formation", "Golden Core", "Soul Formation", "Nascent Soul", "Nihility", "Ascension", "Half Immortal", "Earth Immortal"];
 const subRealms = [];
 let qiReq = BASE_QI_REQUIREMENT;
 for (let m = 0; m < majorNames.length; m++) {
   for (let lvl = 1; lvl <= 10; lvl++) {
-    subRealms.push({
-      name: `${majorNames[m]} ${lvl}`,
-      qiRequired: Math.round(qiReq)
-    });
+    subRealms.push({ name: `${majorNames[m]} ${lvl}`, qiRequired: Math.round(qiReq) });
     qiReq *= QI_SCALE;
   }
 }
@@ -43,24 +37,29 @@ for (let m = 0; m < majorNames.length; m++) {
 let player = {
   name: "", age: 13, talent: 0, physique: null,
   stats: { health: 0, strength: 0, qi: 0, speed: 0 },
-  subRealmIndex: 0, qi: 0,
-  qiRequired: BASE_QI_REQUIREMENT,
-  lifespan: BASE_LIFESPAN,
-  equippedBook: null,
-  statMultiplier: 1, cultivating: false,
-  gold: 0, spiritStones: 0, inventory: []
+  subRealmIndex: 0, qi: 0, qiRequired: BASE_QI_REQUIREMENT,
+  lifespan: BASE_LIFESPAN, equippedBook: null, statMultiplier: 1,
+  cultivating: false, gold: 0, spiritStones: 0, inventory: []
 };
 let cultivationInterval = null;
 let agingInterval = null;
 let autoBreakEnabled = false;
 
-// --- Utility Functions ---
-function savePlayerData() {
-  try {
-    localStorage.setItem("cultivationGameSave", JSON.stringify(player));
-  } catch (e) {
-    console.warn("Save failed", e);
+// --- Helper Functions ---
+function getTalentByRarity(rarity) {
+  switch (rarity) {
+    case "Common": return getRandomInRange(10, 40);
+    case "Uncommon": return getRandomInRange(30, 60);
+    case "Rare": return getRandomInRange(50, 75);
+    case "Epic": return getRandomInRange(65, 85);
+    case "Legendary": return getRandomInRange(80, 95);
+    case "Mythical": return getRandomInRange(95, 100);
+    default: return getRandomInRange(10, 40);
   }
+}
+
+function getRandomInRange(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function getRandomPhysique() {
@@ -72,34 +71,14 @@ function getRandomPhysique() {
   }
 }
 
+// --- UI & Player Functions ---
 function calculateStats() {
   const base = player.talent;
   const mod = player.physique?.stats || { health: 1, strength: 1, qi: 1, speed: 1 };
-  player.stats.health   = Math.round(base * mod.health   * player.statMultiplier);
+  player.stats.health = Math.round(base * mod.health * player.statMultiplier);
   player.stats.strength = Math.round(base * mod.strength * player.statMultiplier);
-  player.stats.qi       = Math.round(base * mod.qi       * player.statMultiplier);
-  player.stats.speed    = Math.round(base * mod.speed    * player.statMultiplier);
-}
-
-function updateEquippedBookUI() {
-  const book = player.equippedBook;
-  const nameEl = document.getElementById("equipped-book-name");
-  const detailEl = document.getElementById("equipped-book-details");
-  const bar = document.getElementById("proficiency-bar");
-
-  if (!book) {
-    nameEl.textContent = "None";
-    detailEl.textContent = "—";
-    bar.style.width = "0%";
-    return;
-  }
-
-  nameEl.textContent = `${book.name} (Lv ${book.proficiencyLevel || 1})`;
-  detailEl.textContent = `+${((book.baseQiBoost || 0) + (book.proficiencyLevel * (book.qiPerLevel || 0))) * 100}% Qi | +${((book.baseDmgBoost || 0) + (book.proficiencyLevel * (book.dmgPerLevel || 0))) * 100}% DMG`;
-
-  const required = 100 + (book.proficiencyLevel - 1) * 150;
-  const progress = Math.min(100, (book.proficiencyProgress / required) * 100);
-  bar.style.width = `${progress}%`;
+  player.stats.qi = Math.round(base * mod.qi * player.statMultiplier);
+  player.stats.speed = Math.round(base * mod.speed * player.statMultiplier);
 }
 
 function updateUI() {
@@ -131,13 +110,33 @@ function updateUI() {
   updateEquippedBookUI();
 }
 
+function updateEquippedBookUI() {
+  const book = player.equippedBook;
+  const nameEl = document.getElementById("equipped-book-name");
+  const detailEl = document.getElementById("equipped-book-details");
+  const bar = document.getElementById("proficiency-bar");
+
+  if (!book) {
+    nameEl.textContent = "None";
+    detailEl.textContent = "—";
+    bar.style.width = "0%";
+    return;
+  }
+
+  nameEl.textContent = `${book.name} (Lv ${book.proficiencyLevel || 1})`;
+  detailEl.textContent = `+${((book.baseQiBoost || 0) + (book.proficiencyLevel * (book.qiPerLevel || 0))) * 100}% Qi | +${((book.baseDmgBoost || 0) + (book.proficiencyLevel * (book.dmgPerLevel || 0))) * 100}% DMG`;
+
+  const required = 100 + (book.proficiencyLevel - 1) * 150;
+  const progress = Math.min(100, (book.proficiencyProgress / required) * 100);
+  bar.style.width = `${progress}%`;
+}
+
 function startAging() {
   if (agingInterval) clearInterval(agingInterval);
   agingInterval = setInterval(() => {
     player.age++;
     if (player.age > player.lifespan) {
       showGameOver();
-      return;
     }
     updateUI();
     savePlayerData();
@@ -154,17 +153,15 @@ function showGameOver() {
   document.getElementById("cultivate-btn").disabled = true;
 }
 
-function closeNoticeModal() {
-  const modal = document.getElementById("notice-modal");
-  modal.classList.add("hidden");
-  if (modal.dataset.type === "death") {
-    localStorage.removeItem("cultivationGameSave");
-    location.reload();
-  } else {
-    modal.dataset.type = "";
+function savePlayerData() {
+  try {
+    localStorage.setItem("cultivationGameSave", JSON.stringify(player));
+  } catch (e) {
+    console.warn("Save failed", e);
   }
 }
 
+// --- Cultivation Logic ---
 function toggleCultivation() {
   const btn = document.getElementById("cultivate-btn");
   if (!player.cultivating) {
@@ -172,23 +169,10 @@ function toggleCultivation() {
     btn.textContent = "Stop Cultivating";
     cultivationInterval = setInterval(() => {
       let qiGain = player.stats.qi;
-      if (player.equippedBook && player.physique.element === player.equippedBook.element) {
-        const book = player.equippedBook;
-        const qiBoost = book.baseQiBoost + (book.proficiencyLevel * book.qiPerLevel);
-        qiGain *= (1 + qiBoost);
-        book.proficiencyProgress += 0.05;
-        const required = 100 + (book.proficiencyLevel - 1) * 150;
-        if (book.proficiencyProgress >= required) {
-          book.proficiencyProgress = 0;
-          book.proficiencyLevel++;
-        }
-      }
       player.qi = Math.min(player.qiRequired, player.qi + qiGain);
       updateUI();
       savePlayerData();
-      if (autoBreakEnabled && player.qi >= player.qiRequired) {
-        breakthrough();
-      }
+      if (autoBreakEnabled && player.qi >= player.qiRequired) breakthrough();
     }, 1000);
   } else {
     player.cultivating = false;
@@ -219,36 +203,25 @@ function breakthrough() {
     const newMajor = Math.floor(player.subRealmIndex / 10);
     const tier = newMajor;
 
-    if (newMajor > prevMajor) {
-      player.statMultiplier *= MAJOR_REALM_STAT_BOOST;
-      player.lifespan += 8 * (tier + 1);
-    } else {
-      player.statMultiplier *= MINOR_REALM_STAT_BOOST;
-      player.lifespan += 3 * (tier + 1);
-    }
-
+    player.statMultiplier *= newMajor > prevMajor ? MAJOR_REALM_STAT_BOOST : MINOR_REALM_STAT_BOOST;
+    player.lifespan += newMajor > prevMajor ? 8 * (tier + 1) : 3 * (tier + 1);
     calculateStats();
     updateUI();
     savePlayerData();
   }
 }
 
+// --- Inventory & Region ---
 function toggleInventory() {
-  const panel = document.getElementById("inventory-panel");
-  const isHidden = panel.classList.contains("hidden");
-  document.getElementById("battle-panel").classList.add("hidden");
+  document.getElementById("inventory-panel").classList.toggle("hidden");
   document.getElementById("center-content").classList.add("hidden");
-  if (isHidden) panel.classList.remove("hidden");
-  else document.getElementById("center-content").classList.remove("hidden");
+  document.getElementById("battle-panel").classList.add("hidden");
 }
 
 function toggleBattle() {
-  const panel = document.getElementById("battle-panel");
-  const isHidden = panel.classList.contains("hidden");
-  document.getElementById("inventory-panel").classList.add("hidden");
+  document.getElementById("battle-panel").classList.toggle("hidden");
   document.getElementById("center-content").classList.add("hidden");
-  if (isHidden) panel.classList.remove("hidden");
-  else document.getElementById("center-content").classList.remove("hidden");
+  document.getElementById("inventory-panel").classList.add("hidden");
 }
 
 function selectRegion(regionName) {
@@ -258,19 +231,12 @@ function selectRegion(regionName) {
   modal.classList.remove("hidden");
 }
 
-// --- Initialization ---
-window.toggleCultivation = toggleCultivation;
-window.breakthrough = breakthrough;
-window.toggleInventory = toggleInventory;
-window.toggleBattle = toggleBattle;
-window.selectRegion = selectRegion;
-window.rerollLife = rerollLife;
-window.closeNoticeModal = closeNoticeModal;
-
+// --- Character Reroll ---
 function rerollLife() {
   const name = chineseNames[Math.floor(Math.random() * chineseNames.length)];
   const physique = getRandomPhysique();
-  const talent = Math.floor(Math.random() * 100) + 1;
+  const talent = getTalentByRarity(physique.rarity);
+
   player.name = name;
   player.physique = physique;
   player.talent = talent;
@@ -285,6 +251,7 @@ function rerollLife() {
   player.equippedBook = null;
   player.gold = 0;
   player.spiritStones = 0;
+
   calculateStats();
   updateUI();
   savePlayerData();
@@ -292,10 +259,29 @@ function rerollLife() {
 
   const modal = document.getElementById("notice-modal");
   modal.querySelector(".modal-message").textContent = `Reborn as ${name} with ${talent} talent and physique "${physique.name}".`;
-  modal.dataset.type = "info";
   modal.classList.remove("hidden");
 }
 
+// --- Modal Close ---
+function closeNoticeModal() {
+  const modal = document.getElementById("notice-modal");
+  modal.classList.add("hidden");
+  if (modal.dataset.type === "death") {
+    localStorage.removeItem("cultivationGameSave");
+    location.reload();
+  }
+}
+
+// --- Expose to Window ---
+window.toggleCultivation = toggleCultivation;
+window.breakthrough = breakthrough;
+window.toggleInventory = toggleInventory;
+window.toggleBattle = toggleBattle;
+window.selectRegion = selectRegion;
+window.rerollLife = rerollLife;
+window.closeNoticeModal = closeNoticeModal;
+
+// --- On Load ---
 window.onload = () => {
   const saved = localStorage.getItem("cultivationGameSave");
   if (saved) {
@@ -307,5 +293,5 @@ window.onload = () => {
     rerollLife();
   }
 
-  setInterval(savePlayerData, 600000); // Save every 10 mins
+  setInterval(savePlayerData, 600000);
 };
