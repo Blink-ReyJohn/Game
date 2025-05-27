@@ -321,38 +321,79 @@ function loadInventory() {
 
   grid.innerHTML = "";
 
-  player.inventory.forEach((item) => {
-    const cell = document.createElement("div");
-    cell.textContent = item.name;
-    cell.className = "inventory-item";
+  // Sort logic: By rarity (descending) then name
+  const sorted = [...player.inventory].sort((a, b) => {
+    const rarityOrder = ["Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythical"];
+    const rarityA = rarityOrder.indexOf(a.rarity || "Common");
+    const rarityB = rarityOrder.indexOf(b.rarity || "Common");
+    if (rarityA !== rarityB) return rarityB - rarityA;
+    return (a.name || "").localeCompare(b.name || "");
+  });
 
-    // Add rarity class for color
-    if (item.rarity) {
-      cell.classList.add(item.rarity.toLowerCase()); // e.g. rare, legendary
+  // Grouping by type
+  const tabs = ["equipment", "book", "consumable"];
+  tabs.forEach(type => {
+    const header = document.createElement("h3");
+    header.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+    grid.appendChild(header);
+
+    const itemsOfType = sorted.filter(i => i.type === type);
+    const grouped = {};
+
+    // Stacking duplicates
+    for (const item of itemsOfType) {
+      const key = `${item.name}-${item.rarity}`;
+      if (!grouped[key]) {
+        grouped[key] = { ...item, quantity: 1 };
+      } else {
+        grouped[key].quantity++;
+      }
     }
 
-    // Add tooltip for books
-    if (item.type === "book") {
-      cell.title = `${item.name} (${item.rarity})\nElement: ${item.element}\nLv ${item.proficiencyLevel}`;
-    }
+    for (const key in grouped) {
+      const item = grouped[key];
+      const cell = document.createElement("div");
+      cell.className = "inventory-item";
+      if (item.rarity) {
+        cell.classList.add(item.rarity.toLowerCase());
+      }
 
-    // Click to inspect item
-    cell.onclick = () => showItemInfo(item);
-    grid.appendChild(cell);
+      cell.innerHTML = `
+        <div class="item-info">
+          <span class="item-name">${item.name}</span>
+          ${item.quantity > 1 ? `<span class="item-qty">x${item.quantity}</span>` : ""}
+        </div>
+      `;
+
+      // Tooltip Info Popup
+      cell.title = `${item.name}\nRarity: ${item.rarity}\nElement: ${item.element || "None"}${item.proficiencyLevel ? `\nLevel: ${item.proficiencyLevel}` : ""}`;
+
+      // Click to view details
+      cell.onclick = () => showItemInfo(item);
+      grid.appendChild(cell);
+    }
   });
 }
 
 function showItemInfo(item) {
   document.getElementById("item-name").textContent = item.name;
-  document.getElementById("item-description").textContent = `Element: ${item.element} | Rarity: ${item.rarity}`;
-  
-  const canEquip = item.element === player.physique.element;
-  document.getElementById("equip-button").style.display = canEquip ? "inline-block" : "none";
+  document.getElementById("item-description").textContent =
+    `Type: ${item.type || "Unknown"} | Element: ${item.element || "None"} | Rarity: ${item.rarity}`;
 
-  document.getElementById("equip-button").onclick = () => {
-    player.equippedBook = item;
-    updateEquippedBookUI();
-    savePlayerData();
+  const equipBtn = document.getElementById("equip-button");
+  const canEquip = item.type === "book" && item.element === player.physique?.element;
+
+  equipBtn.style.display = canEquip ? "inline-block" : "none";
+  equipBtn.onclick = () => {
+    try {
+      player.equippedBook = item;
+      updateEquippedBookUI();
+      savePlayerData();
+      updateUI();
+    } catch (e) {
+      alert("Failed to equip item.");
+      console.error(e);
+    }
   };
 }
 
@@ -369,12 +410,16 @@ function updateEquippedBookUI() {
     return;
   }
 
-  nameEl.textContent = `${book.name} (Lv ${book.proficiencyLevel})`;
-  detailEl.textContent = `+${(book.baseQiBoost + book.proficiencyLevel * book.qiPerLevel) * 100}% Qi | +${(book.baseDmgBoost + book.proficiencyLevel * book.dmgPerLevel) * 100}% DMG`;
-  
-  const required = 100 + (book.proficiencyLevel - 1) * 150;
-  const progress = Math.min(100, (book.proficiencyProgress / required) * 100);
-  bar.style.width = `${progress}%`;
+  try {
+    nameEl.textContent = `${book.name} (Lv ${book.proficiencyLevel})`;
+    detailEl.textContent = `+${((book.baseQiBoost || 0) + (book.proficiencyLevel * (book.qiPerLevel || 0))) * 100}% Qi | +${((book.baseDmgBoost || 0) + (book.proficiencyLevel * (book.dmgPerLevel || 0))) * 100}% DMG`;
+
+    const required = 100 + (book.proficiencyLevel - 1) * 150;
+    const progress = Math.min(100, (book.proficiencyProgress / required) * 100);
+    bar.style.width = `${progress}%`;
+  } catch (err) {
+    console.error("Error rendering book UI:", err);
+  }
 }
 
 function loadPlayerData() {
